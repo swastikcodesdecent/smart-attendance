@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // =========================================================================
+    // SECURITY UTILITIES
+    // =========================================================================
+    
+    // Check if the requesting client is an authenticated Administrator
+    function isAdmin() {
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Check if the requesting client is an authenticated Teacher
+    function isTeacher() {
+      return request.auth != null && exists(/databases/$(database)/documents/teachers/$(request.auth.uid));
+    }
+
+    // =========================================================================
+    // COLLECTION RULES
+    // =========================================================================
+
+    // Admins Collection
+    match /admins/{adminId} {
+      allow read, write: if request.auth != null && (request.auth.uid == adminId || isAdmin());
+    }
+
+    // Teachers Collection
+    match /teachers/{teacherId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Classes Collection
+    match /classes/{classId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Students Collection
+    match /students/{studentId} {
+      // Read access is public so the local scan terminal device can query details on QR scan
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Attendance Records Collection
+    match /attendance/{attendanceId} {
+      allow read: if isAdmin() || isTeacher();
+      // Scan terminal creates check-ins on correct PIN verification
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // Failed PIN Attempts Collection
+    match /failedAttempts/{attemptId} {
+      // Scan terminal manages failed attempts count and locking states
+      allow read, write: if true;
+    }
+
+    // System Settings Document
+    match /settings/{settingId} {
+      allow read: if true; // Scan terminal reads late time & telegram credentials
+      allow write: if isAdmin();
+    }
+  }
+}

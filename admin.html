@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Smart School Attendance System</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- QRious JS (QR Code Generation) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+</head>
+<body>
+
+  <!-- Brand Header -->
+  <header class="brand-header">
+    <div class="brand-info">
+      <img src="depaul-school-logo.png" alt="De Paul School Logo" class="brand-logo">
+      <div class="brand-title">
+        <h1>De Paul School</h1>
+        <p>Administration Dashboard</p>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div id="live-clock" style="font-family: monospace; font-size: 0.9rem; color: var(--primary); font-weight: 700; background: rgba(59, 130, 246, 0.1); padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.2); text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);"></div>
+      <span class="font-outfit" id="admin-user-name" style="font-weight: 600; color: var(--text-main); font-size: 0.9rem;">Administrator</span>
+      <button class="btn btn-secondary" id="btn-admin-logout" style="padding: 0.5rem 1rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+        <i data-lucide="log-out" style="width: 14px; height: 14px;"></i> Log Out
+      </button>
+    </div>
+  </header>
+
+  <!-- Notification Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- App Wrapper -->
+  <main class="app-container">
+    
+    <div class="dashboard-layout">
+      
+      <!-- Sidebar Navigation -->
+      <aside class="nav-aside glass-card">
+        <a href="#" class="nav-link active" data-tab="tab-overview">
+          <i data-lucide="layout-dashboard"></i> Overview
+        </a>
+        <a href="#" class="nav-link" data-tab="tab-teachers">
+          <i data-lucide="users"></i> Teachers
+        </a>
+        <a href="#" class="nav-link" data-tab="tab-students">
+          <i data-lucide="graduation-cap"></i> Students
+        </a>
+        <a href="#" class="nav-link" data-tab="tab-reports">
+          <i data-lucide="clipboard-list"></i> Reports
+        </a>
+        <a href="#" class="nav-link" data-tab="tab-settings">
+          <i data-lucide="settings"></i> System Settings
+        </a>
+        <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(226, 232, 240, 0.6); display: flex; flex-direction: column; gap: 0.5rem;">
+          <a href="attendance.html" target="_blank" class="nav-link" style="color: var(--primary);">
+            <i data-lucide="scan-line"></i> Launch Portal
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main Panel Work Area -->
+      <section class="dashboard-content">
+        
+        <!-- ==================== TAB: OVERVIEW ==================== -->
+        <div class="dashboard-tab active" id="tab-overview">
+          <h2 class="font-outfit mb-4">Dashboard Statistics</h2>
+          
+          <!-- Statistics Cards Row -->
+          <div class="stats-grid mb-6">
+            <div class="glass-card stat-card">
+              <div class="stat-header">
+                Total Students
+                <div class="stat-icon-wrapper"><i data-lucide="graduation-cap" style="width: 16px; height: 16px;"></i></div>
+              </div>
+              <div class="stat-value" id="stat-total-students">0</div>
+            </div>
+            
+            <div class="glass-card stat-card">
+              <div class="stat-header">
+                Total Teachers
+                <div class="stat-icon-wrapper"><i data-lucide="users" style="width: 16px; height: 16px;"></i></div>
+              </div>
+              <div class="stat-value" id="stat-total-teachers">0</div>
+            </div>
+
+            <div class="glass-card stat-card">
+              <div class="stat-header">
+                Total Classes
+                <div class="stat-icon-wrapper"><i data-lucide="book-open" style="width: 16px; height: 16px;"></i></div>
+              </div>
+              <div class="stat-value" id="stat-total-classes">0</div>
+            </div>
+
+            <div class="glass-card stat-card stat-success">
+              <div class="stat-header">
+                Present Today
+                <div class="stat-icon-wrapper"><i data-lucide="check-circle" style="width: 16px; height: 16px;"></i></div>
+              </div>
+              <div class="stat-value" id="stat-present-today">0</div>
+            </div>
+
+            <div class="glass-card stat-card stat-danger">
+              <div class="stat-header">
+                Absent Today
+                <div class="stat-icon-wrapper"><i data-lucide="x-circle" style="width: 16px; height: 16px;"></i></div>
+              </div>
+              <div class="stat-value" id="stat-absent-today">0</div>
+            </div>
+
+            <div class="glass-card stat-card stat-warning">
+              <div class="stat-header">
+                Attendance Rate
+                <div class="stat-icon-wrapper"><i data-lucide="trending-up" style="width: 16px; height: 16px;"></i></div>
+              </div>
+              <div class="stat-value" id="stat-attendance-rate">0%</div>
+            </div>
+          </div>
+
+          <!-- Real-Time Activity Log -->
+          <div class="glass-card">
+            <h3 class="font-outfit mb-4">Today's Real-time Check-ins</h3>
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Photo</th>
+                    <th>Student Name</th>
+                    <th>Reg No</th>
+                    <th>Class</th>
+                    <th>Entry Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="realtime-attendance-tbody">
+                  <tr>
+                    <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">No entries recorded today yet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== TAB: TEACHERS ==================== -->
+        <div class="dashboard-tab" id="tab-teachers" style="display: none;">
+          <div class="controls-row mb-4">
+            <h2 class="font-outfit">Manage Teacher Accounts</h2>
+            <button class="btn btn-primary" id="btn-add-teacher">
+              <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i> Create Teacher
+            </button>
+          </div>
+
+          <div class="glass-card">
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Teacher Name</th>
+                    <th>Email Address</th>
+                    <th>Subject / Dept</th>
+                    <th>Assigned Class</th>
+                    <th>Assigned Section</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="teachers-list-tbody">
+                  <tr>
+                    <td colspan="5" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading teachers...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== TAB: STUDENTS ==================== -->
+        <div class="dashboard-tab" id="tab-students" style="display: none;">
+          <div class="controls-row mb-4">
+            <h2 class="font-outfit">Student Directory</h2>
+            
+            <div style="display: flex; gap: 1rem; width: 100%; max-width: 600px; justify-content: flex-end; flex-wrap: wrap;">
+              <div class="search-wrapper">
+                <i data-lucide="search" class="search-icon" style="width: 18px; height: 18px;"></i>
+                <input type="text" class="form-control search-input" id="student-search-input" placeholder="Search by name, Reg No, or class...">
+              </div>
+              <button class="btn btn-primary" id="btn-add-student">
+                <i data-lucide="user-plus" style="width: 18px; height: 18px;"></i> Register Student
+              </button>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Photo</th>
+                    <th>Full Name</th>
+                    <th>Reg No</th>
+                    <th>Roll No</th>
+                    <th>Class / Sec</th>
+                    <th>Blood Group</th>
+                    <th>Parent Contact</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="students-list-tbody">
+                  <tr>
+                    <td colspan="8" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading student database...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== TAB: REPORTS ==================== -->
+        <div class="dashboard-tab" id="tab-reports" style="display: none;">
+          <div class="controls-row mb-4">
+            <h2 class="font-outfit">Export Attendance Reports</h2>
+          </div>
+
+          <div class="glass-card mb-6">
+            <h3 class="font-outfit mb-4" style="font-size: 1.15rem;">Report Filter Parameters</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: end;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Report Date</label>
+                <input type="date" class="form-control" id="report-date-filter">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Class</label>
+                <select class="form-control" id="report-class-filter">
+                  <option value="">All Classes</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Section</label>
+                <select class="form-control" id="report-section-filter">
+                  <option value="">All Sections</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" id="btn-export-csv" style="height: 44px; display: flex; justify-content: center; gap: 0.5rem;">
+                <i data-lucide="download" style="width: 18px; height: 18px;"></i> Export CSV Report
+              </button>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <h3 class="font-outfit mb-4" id="reports-table-heading">Attendance Log</h3>
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Student Name</th>
+                    <th>Reg No</th>
+                    <th>Class</th>
+                    <th>Section</th>
+                    <th>Date</th>
+                    <th>Entry Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="reports-tbody">
+                  <tr>
+                    <td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">Specify filters to generate logs.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== TAB: SETTINGS ==================== -->
+        <div class="dashboard-tab" id="tab-settings" style="display: none;">
+          <h2 class="font-outfit mb-4">Global System Settings</h2>
+          
+          <div class="glass-card" style="max-width: 600px;">
+            <form id="settings-form">
+              <div class="form-group">
+                <label class="form-label">School Name</label>
+                <input type="text" class="form-control" id="settings-school-name" required>
+              </div>
+              
+
+
+              <div class="form-group">
+                <label class="form-label">Late-In Attendance Threshold Time (HH:MM)</label>
+                <input type="time" class="form-control" id="settings-late-time" required>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Any scans occurring after this time will automatically compile with a "Late" status flag instead of "Present".</p>
+              </div>
+
+              <div style="margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary" style="display: flex; gap: 0.5rem; width: 100%; justify-content: center;">
+                  Save System Configurations <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ==================== MODAL: ADD/EDIT TEACHER ==================== -->
+  <div class="modal-backdrop" id="modal-teacher">
+    <div class="glass-card modal-container">
+      <div class="modal-header">
+        <h3 class="font-outfit" id="modal-teacher-title">Create Teacher Account</h3>
+        <button class="modal-close" id="btn-close-teacher-modal"><i data-lucide="x"></i></button>
+      </div>
+      <form id="teacher-form">
+        <input type="hidden" id="teacher-edit-id">
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="teacher-name-input" required placeholder="E.g. Mriganka Roy">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teacher Photo URL</label>
+            <input type="url" class="form-control" id="teacher-photo-input" placeholder="https://example.com/photo.jpg">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-control" id="teacher-email-input" required placeholder="name@depaulschool.com">
+        </div>
+
+        <!-- Password element (hidden on edit) -->
+        <div class="form-group" id="teacher-password-group">
+          <label class="form-label">Login Password</label>
+          <input type="password" class="form-control" id="teacher-password-input" placeholder="Min 6 characters">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Assigned Class</label>
+            <input type="text" class="form-control" id="teacher-class-input" required placeholder="E.g. 12">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Assigned Section</label>
+            <input type="text" class="form-control" id="teacher-section-input" required placeholder="E.g. P">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Subject Taught</label>
+            <input type="text" class="form-control" id="teacher-subject-input" required placeholder="E.g. Computer Science">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Department</label>
+            <input type="text" class="form-control" id="teacher-dept-input" required placeholder="E.g. Science">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">4-Digit Security Attendance PIN</label>
+          <input type="text" class="form-control" id="teacher-pin-input" pattern="[0-9]{4}" maxlength="4" placeholder="E.g. 1234">
+          <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Numeric PIN used for scan check-ins. Leave blank during edit to keep current PIN.</p>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-teacher-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-teacher">Save Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ADD/EDIT STUDENT ==================== -->
+  <div class="modal-backdrop" id="modal-student">
+    <div class="glass-card modal-container" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 class="font-outfit" id="modal-student-title">Register Student</h3>
+        <button class="modal-close" id="btn-close-student-modal"><i data-lucide="x"></i></button>
+      </div>
+      <form id="student-form">
+        <input type="hidden" id="student-edit-id">
+        
+        <!-- Registration number (auto-populated or editing) -->
+        <div class="form-group" id="student-reg-num-group" style="display: none;">
+          <label class="form-label">Registration Number</label>
+          <input type="text" class="form-control" id="student-reg-input" readonly>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Student Photo URL</label>
+            <input type="url" class="form-control" id="student-photo-input" placeholder="https://example.com/photo.jpg">
+            <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Enter the direct URL link of the student's image.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="student-name-input" required placeholder="Student Name">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Class</label>
+            <input type="text" class="form-control" id="student-class-input" required placeholder="E.g. 12">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Section</label>
+            <input type="text" class="form-control" id="student-section-input" required placeholder="E.g. P">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Roll Number</label>
+            <input type="text" class="form-control" id="student-roll-input" required placeholder="E.g. 45">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Blood Group</label>
+            <select class="form-control" id="student-blood-input">
+              <option value="">Choose Blood Group</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid rgba(226, 232, 240, 0.8); margin: 1rem 0;">
+        <h4 class="font-outfit mb-3" style="font-size: 0.95rem; color: var(--primary);">Parent / Guardian Contact Information</h4>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Parent / Guardian Name</label>
+            <input type="text" class="form-control" id="student-parent-name" required placeholder="Guardian's Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Parent Phone Number</label>
+            <input type="tel" class="form-control" id="student-parent-phone" required placeholder="E.g. +91 98765 43210">
+          </div>
+        </div>
+
+
+
+        <hr style="border: 0; border-top: 1px solid rgba(226, 232, 240, 0.8); margin: 1rem 0;">
+        <h4 class="font-outfit mb-3" style="font-size: 0.95rem; color: var(--primary);">Security Verification Settings</h4>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">4-Digit Security Attendance PIN</label>
+            <input type="text" class="form-control" id="student-pin-input" required pattern="[0-9]{4}" maxlength="4" placeholder="E.g. 1234">
+            <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Numeric PIN used during scanners checks. Hashed locally before saving.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Student Web Password (Optional)</label>
+            <input type="password" class="form-control" id="student-password-input" placeholder="Default Password">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-student-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-student">Register Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: STUDENT ID CARD VIEW ==================== -->
+  <div class="modal-backdrop" id="modal-id-card">
+    <div class="glass-card modal-container" style="max-width: 730px; padding: 2rem;">
+      <div class="modal-header" style="margin-bottom: 1rem; padding-bottom: 0.5rem;">
+        <h3 class="font-outfit" style="font-size: 1.25rem;">Student ID Card (Front & Back)</h3>
+        <button class="modal-close" id="btn-close-id-card-modal"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="id-card-preview-container">
+        
+        <!-- Live ID Card Render Area -->
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; width: 100%;" id="id-cards-container">
+          
+          <!-- FRONT SIDE -->
+          <div class="id-card-element" id="id-card-front">
+            <div class="id-card-header">
+              <img src="depaul-school-logo.png" alt="DPS Logo" onerror="this.src='https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=50&auto=format&fit=crop'">
+              <div class="id-card-school-info">
+                <h2>De Paul School</h2>
+                <p>Stewardship & Excellence</p>
+              </div>
+            </div>
+
+            <div class="id-card-body">
+              <img src="" alt="Student Photo" class="id-card-photo" id="id-card-photo-img">
+              <div class="id-card-name" id="id-card-name-txt">-</div>
+              <div class="id-card-role-badge">STUDENT</div>
+              
+              <div class="id-card-details-grid">
+                <div class="id-card-field">
+                  <span id="card-label-1">Reg No</span>
+                  <strong id="id-card-reg-txt">-</strong>
+                </div>
+                <div class="id-card-field">
+                  <span id="card-label-2">Roll No</span>
+                  <strong id="id-card-roll-txt">-</strong>
+                </div>
+                <div class="id-card-field">
+                  <span id="card-label-3">Class / Sec</span>
+                  <strong id="id-card-class-txt">-</strong>
+                </div>
+                <div class="id-card-field">
+                  <span id="card-label-4">Blood Grp</span>
+                  <strong id="id-card-blood-txt">-</strong>
+                </div>
+              </div>
+
+              <!-- Canvas QR code placement -->
+              <div class="id-card-qr-section">
+                <canvas id="id-card-qr-canvas" style="width: 100% !important; height: 100% !important;"></canvas>
+              </div>
+
+              <div class="id-card-footer">
+                If found, return to school office. Tel: <span id="id-card-phone-txt">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- BACK SIDE -->
+          <div class="id-card-element" id="id-card-back" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%); color: #ffffff; border-color: rgba(255,255,255,0.15);">
+            <div style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; height: 100%; text-align: center;">
+              
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                <img src="depaul-school-logo.png" alt="DPS Logo" style="height: 50px; filter: drop-shadow(0 2px 8px rgba(255,255,255,0.2));">
+                <h2 class="font-outfit" style="color: #ffffff; font-size: 1.25rem; letter-spacing: 0.5px;">DE PAUL SCHOOL</h2>
+                <p style="font-size: 0.65rem; color: #93c5fd; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;">Kolkata, West Bengal, India</p>
+              </div>
+              
+              <div style="border-top: 1px dashed rgba(255, 255, 255, 0.2); border-bottom: 1px dashed rgba(255, 255, 255, 0.2); padding: 1.5rem 0; text-align: left; font-size: 0.72rem; line-height: 1.6; color: #e2e8f0; margin: 1rem 0;">
+                <strong style="color: #fbbf24; display: block; margin-bottom: 0.5rem; font-family: 'Outfit'; font-size: 0.8rem; letter-spacing: 0.5px;">RULES & INSTRUCTIONS:</strong>
+                <ul style="padding-left: 1.1rem; margin: 0; display: flex; flex-direction: column; gap: 0.4rem; list-style-type: disc;">
+                  <li>This card is non-transferable and remains the sole property of De Paul School.</li>
+                  <li>In case of loss or damage, immediately notify the school administrator.</li>
+                  <li>A standard replacement fee applies for generating a duplicate card.</li>
+                  <li>Students must wear this card at all times while inside the school premises.</li>
+                </ul>
+              </div>
+              
+              <div style="font-size: 0.68rem; color: #94a3b8; line-height: 1.4; margin-bottom: 0.5rem;">
+                <strong>Emergency Helpline:</strong> +91 9038778498<br>
+                <strong>Official Web:</strong> www.depaulschoolkolkata.org
+              </div>
+              
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Utility download/print buttons -->
+        <div style="display: flex; gap: 1rem; width: 100%; margin-top: 1.5rem; flex-wrap: wrap;">
+          <button class="btn btn-secondary" id="btn-print-id-card" style="flex: 1; min-width: 150px; gap: 0.25rem;">
+            <i data-lucide="printer" style="width: 16px; height: 16px;"></i> Print Card
+          </button>
+          <button class="btn btn-primary" id="btn-download-front" style="flex: 1; min-width: 150px; gap: 0.25rem;">
+            <i data-lucide="download" style="width: 16px; height: 16px;"></i> Download Front
+          </button>
+          <button class="btn btn-primary" id="btn-download-back" style="flex: 1; min-width: 150px; gap: 0.25rem;">
+            <i data-lucide="download" style="width: 16px; height: 16px;"></i> Download Back
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Mask Overlay -->
+  <div class="loader-overlay" id="admin-loader">
+    <div class="spinner"></div>
+    <p class="font-outfit" style="color: var(--primary); font-weight: 600; margin-top: 1rem;" id="admin-loader-text">Loading admin panels...</p>
+  </div>
+
+  <!-- HTML2Canvas (for ID Card download) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Admin logic -->
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

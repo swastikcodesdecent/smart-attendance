@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Scan Console - De Paul School</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- HTML5 QR Code Library (Camera Scan) -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+
+  <!-- Brand Header -->
+  <header class="brand-header">
+    <div class="brand-info">
+      <img src="depaul-school-logo.png" alt="De Paul School Logo" class="brand-logo">
+      <div class="brand-title">
+        <h1>De Paul School</h1>
+        <p>Student Check-In Portal</p>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div id="live-clock" style="font-family: monospace; font-size: 0.9rem; color: var(--primary); font-weight: 700; background: rgba(59, 130, 246, 0.1); padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.2); text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);"></div>
+      <a href="index.html" class="btn btn-secondary font-outfit" style="display: flex; align-items: center; gap: 0.25rem;">
+        <i data-lucide="home" style="width: 16px; height: 16px;"></i> Home
+      </a>
+    </div>
+  </header>
+
+  <!-- Notification Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Main Grid Layout -->
+  <main class="app-container" style="flex: 1; align-items: stretch; justify-content: start;">
+    
+    <div class="portal-layout">
+      
+      <!-- Left Box: Camera Scanner -->
+      <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <h2 class="font-outfit mb-2" style="font-size: 1.5rem; color: #1e3a8a; display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="camera" style="width: 24px; height: 24px; color: var(--primary);"></i> ID Card QR Scanner
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
+            Hold the Student ID card QR code in front of the camera viewport to begin student verification.
+          </p>
+
+          <!-- Scanner Box -->
+          <div class="scanner-viewport" id="scanner-view-container">
+            <div id="reader"></div>
+            <!-- Custom scanning HUD overlay -->
+            <div class="scanner-overlay" id="scanner-hud">
+              <div class="scanner-box"></div>
+              <div class="scanner-laser"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Camera Control Actions -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+          <button class="btn btn-primary" id="btn-start-camera" style="display: flex; justify-content: center; gap: 0.5rem;">
+            <i data-lucide="play" style="width: 18px; height: 18px;"></i> Start Camera
+          </button>
+          <button class="btn btn-secondary" id="btn-stop-camera" disabled style="display: flex; justify-content: center; gap: 0.5rem;">
+            <i data-lucide="square" style="width: 18px; height: 18px;"></i> Stop Camera
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Box: Verification Panel -->
+      <div class="glass-card pin-panel" id="verification-panel">
+        
+        <!-- Screen 1: Idle Scanner Monitor -->
+        <div id="screen-idle" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; min-height: 400px; gap: 1.5rem;">
+          <div style="width: 100px; height: 100px; border-radius: 50%; border: 3px dashed var(--text-light); display: flex; align-items: center; justify-content: center; color: var(--text-light); animation: spin 20s linear infinite;">
+            <i data-lucide="qr-code" style="width: 48px; height: 48px;"></i>
+          </div>
+          <div>
+            <h3 class="font-outfit mb-2" style="font-size: 1.3rem;">Awaiting Card Scan</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 280px; margin: 0 auto; line-height: 1.5;">
+              Scan a student ID card. The camera system will automatically process the QR code and prompt for validation credentials.
+            </p>
+          </div>
+        </div>
+
+        <!-- Screen 2: Student Verified & Input PIN Keypad -->
+        <div id="screen-pin" style="display: none; flex-direction: column; justify-content: space-between; height: 100%;">
+          
+          <!-- Student Mini-Card Summary -->
+          <div style="background: rgba(255, 255, 255, 0.5); border: 1px solid var(--glass-border); padding: 1rem; border-radius: var(--radius-md); display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <img src="" alt="Student Photo" id="student-preview-photo" style="width: 65px; height: 65px; border-radius: 8px; object-fit: cover; border: 2px solid #fff; background: var(--primary-light);">
+            <div style="text-align: left;">
+              <h4 id="student-preview-name" class="font-outfit" style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.1rem;">-</h4>
+              <p id="student-preview-reg" style="font-size: 0.75rem; color: var(--primary); font-weight: 700; text-transform: uppercase;">-</p>
+              <p id="student-preview-class" style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500; margin-top: 0.15rem;">Class: -</p>
+            </div>
+          </div>
+
+          <!-- PIN Instructions -->
+          <div class="text-center">
+            <h3 class="font-outfit mb-1" style="font-size: 1.2rem;">Enter Security PIN</h3>
+            <p style="color: var(--text-muted); font-size: 0.8rem;">Enter your 4-digit attendance security PIN to confirm entry.</p>
+            
+            <!-- Masked Dots -->
+            <div class="pin-display-wrapper">
+              <div class="pin-dots">
+                <div class="pin-dot" id="dot-0"></div>
+                <div class="pin-dot" id="dot-1"></div>
+                <div class="pin-dot" id="dot-2"></div>
+                <div class="pin-dot" id="dot-3"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Numeric Keypad Grid -->
+          <div class="pin-keypad">
+            <button class="keypad-btn" data-val="1">1</button>
+            <button class="keypad-btn" data-val="2">2</button>
+            <button class="keypad-btn" data-val="3">3</button>
+            <button class="keypad-btn" data-val="4">4</button>
+            <button class="keypad-btn" data-val="5">5</button>
+            <button class="keypad-btn" data-val="6">6</button>
+            <button class="keypad-btn" data-val="7">7</button>
+            <button class="keypad-btn" data-val="8">8</button>
+            <button class="keypad-btn" data-val="9">9</button>
+            
+            <button class="keypad-btn action-btn cancel-btn" id="btn-pin-cancel" title="Cancel Scan">ESC</button>
+            <button class="keypad-btn" data-val="0">0</button>
+            <button class="keypad-btn action-btn submit-btn" id="btn-pin-backspace" title="Backspace"><i data-lucide="delete" style="width: 22px; height: 22px;"></i></button>
+          </div>
+
+        </div>
+
+        <!-- Screen 3: Verify Processing Loader -->
+        <div id="screen-loading" style="display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; min-height: 400px; gap: 1.5rem;">
+          <div class="spinner"></div>
+          <div>
+            <h3 class="font-outfit mb-1">Verifying PIN</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Authenticating with Cloud Firestore records...</p>
+          </div>
+        </div>
+
+        <!-- Screen 4: Success Checkmark -->
+        <div id="screen-success" style="display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; min-height: 400px; gap: 1.5rem;">
+          <div class="success-checkmark">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+              <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+              <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-outfit" style="color: var(--success); font-size: 1.5rem; margin-bottom: 0.5rem;">Attendance Marked!</h3>
+            <p id="success-student-name" style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);">-</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Student check-in recorded successfully.</p>
+          </div>
+        </div>
+
+        <!-- Screen 5: Error Screen -->
+        <div id="screen-error" style="display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; min-height: 400px; gap: 1.5rem;">
+          <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--danger-light); color: var(--danger); display: flex; align-items: center; justify-content: center;">
+            <i data-lucide="x-circle" style="width: 48px; height: 48px;"></i>
+          </div>
+          <div>
+            <h3 class="font-outfit" id="error-title" style="color: var(--danger); font-size: 1.4rem; margin-bottom: 0.5rem;">Incorrect PIN</h3>
+            <p id="error-description" style="color: var(--text-muted); font-size: 0.85rem; max-width: 280px; margin: 0 auto; line-height: 1.5;">-</p>
+          </div>
+          <button class="btn btn-secondary" id="btn-error-reset">Try Scan Again</button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer style="text-align: center; padding: 2rem; color: var(--text-light); font-size: 0.8rem; font-weight: 500;">
+    &copy; 2026 De Paul School. Powered by Firestore & Telegram Bot API.
+  </footer>
+
+  <!-- Scanning script -->
+  <script type="module" src="js/attendance.js"></script>
+</body>
+</html>

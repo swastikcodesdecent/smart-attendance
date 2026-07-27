@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Smart School Attendance System</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem 0;">
+
+  <!-- Login Card -->
+  <div class="glass-card" style="width: 100%; max-width: 420px; box-shadow: var(--glass-shadow-lg); padding: 2.5rem; margin: auto; border-color: rgba(255,255,255,0.12);">
+    
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <a href="index.html" style="text-decoration: none; display: inline-block;">
+        <img src="depaul-school-logo.png" alt="DPS Logo" style="height: 55px; margin-bottom: 0.5rem;" onerror="this.style.display='none'">
+        <h2 class="font-outfit" style="font-size: 1.5rem; color: #ffffff;">De Paul School</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Smart Attendance Control Login</p>
+      </a>
+    </div>
+
+    <!-- Error Alert Banner -->
+    <div id="login-error-banner" style="display: none; background: var(--danger-light); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--danger); padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+      <i data-lucide="alert-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i>
+      <span id="login-error-text">Incorrect email or password.</span>
+    </div>
+
+    <!-- Login Form -->
+    <form id="login-form">
+      <div class="form-group">
+        <label class="form-label" for="login-email">School Email Address</label>
+        <div style="position: relative; display: flex; align-items: center;">
+          <i data-lucide="mail" style="position: absolute; left: 1rem; color: var(--text-muted); width: 18px; height: 18px; pointer-events: none;"></i>
+          <input type="email" class="form-control" id="login-email" value="admin@dps.com" placeholder="name@school.com" required style="padding-left: 2.75rem; width: 100%;">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label class="form-label" for="login-password">Security Password</label>
+        <div style="position: relative; display: flex; align-items: center;">
+          <i data-lucide="lock" style="position: absolute; left: 1rem; color: var(--text-muted); width: 18px; height: 18px; pointer-events: none;"></i>
+          <input type="password" class="form-control" id="login-password" value="swastik99" placeholder="••••••••" required style="padding-left: 2.75rem; width: 100%;">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; display: flex; justify-content: center; gap: 0.5rem;">
+        Sign In <i data-lucide="log-in" style="width: 18px; height: 18px;"></i>
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.5rem;">
+      <a href="index.html" class="font-outfit" style="color: var(--accent); text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+        <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i> Return to Portal Selector
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Full-screen Loading Overlay -->
+  <div class="loader-overlay" id="login-loader">
+    <div class="spinner"></div>
+    <p class="font-outfit" style="color: var(--primary); font-weight: 600; margin-top: 1rem;">Verifying credentials...</p>
+  </div>
+
+  <script type="module">
+    import { auth, db, rtdb } from "./js/firebase-config.js";
+    import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { checkSessionAndRedirect } from "./js/auth.js";
+
+    lucide.createIcons();
+
+    // Check if URL parameters suggest errors
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorParam = urlParams.get("error");
+    const errBanner = document.getElementById("login-error-banner");
+    const errText = document.getElementById("login-error-text");
+
+    if (errorParam === "unauthorized") {
+      errText.innerText = "Access denied: Account role is not configured in the database.";
+      errBanner.style.display = "flex";
+    } else if (errorParam === "check_failed") {
+      errText.innerText = "Access denied: Error validating authorization permissions.";
+      errBanner.style.display = "flex";
+    }
+
+    // Check if user is already authenticated
+    checkSessionAndRedirect();
+
+    const form = document.getElementById("login-form");
+    const loader = document.getElementById("login-loader");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errBanner.style.display = "none";
+      
+      const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-password").value;
+
+      loader.classList.add("active");
+
+      try {
+        // Firebase sign in
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        const uid = cred.user.uid;
+
+        // Check if admin doc exists in Firestore
+        let adminDoc = await getDoc(doc(db, "admins", uid));
+
+        // Auto-provision default Admin profile in both Firestore and RTDB if it doesn't exist yet
+        if (!adminDoc.exists() && email === "admin@dps.com") {
+          try {
+            const adminRecord = {
+              name: "Swastik Admin",
+              email: email,
+              role: "admin",
+              createdAt: Date.now()
+            };
+
+            // Write to Firestore
+            await setDoc(doc(db, "admins", uid), adminRecord);
+            // Write to Realtime Database
+            await set(ref(rtdb, `admins/${uid}`), adminRecord);
+
+            // Re-fetch the newly created profile doc
+            adminDoc = await getDoc(doc(db, "admins", uid));
+          } catch (writeErr) {
+            console.error("Auto-provisioning write failed:", writeErr);
+          }
+        }
+
+        if (adminDoc.exists()) {
+          loader.classList.remove("active");
+          const redirectUrl = urlParams.get("redirect") || "admin.html";
+          window.location.href = redirectUrl;
+          return;
+        }
+
+        // Check if teacher doc exists in Firestore
+        const teacherDoc = await getDoc(doc(db, "teachers", uid));
+        if (teacherDoc.exists()) {
+          loader.classList.remove("active");
+          const redirectUrl = urlParams.get("redirect") || "teacher.html";
+          window.location.href = redirectUrl;
+          return;
+        }
+
+        // Authenticated but no database role record
+        await signOut(auth);
+        loader.classList.remove("active");
+        errText.innerText = "Access denied: Account role profile not registered.";
+        errBanner.style.display = "flex";
+
+      } catch (error) {
+        loader.classList.remove("active");
+        console.error("Sign in failed:", error);
+        
+        let errMsg = "Incorrect email address or password.";
+        if (error.code === "auth/invalid-credential") {
+          errMsg = "Incorrect email address or password.";
+        } else if (error.code === "auth/user-not-found") {
+          errMsg = "Account does not exist.";
+        } else if (error.code === "auth/wrong-password") {
+          errMsg = "Incorrect password.";
+        } else if (error.code === "auth/too-many-requests") {
+          errMsg = "Access blocked temporarily due to too many failed attempts. Try again later.";
+        } else {
+          errMsg = error.message;
+        }
+
+        errText.innerText = errMsg;
+        errBanner.style.display = "flex";
+      }
+    });
+  </script>
+</body>
+</html>

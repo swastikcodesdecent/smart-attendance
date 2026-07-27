@@ -1,0 +1,54 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    
+    "admins": {
+      ".read": "auth != null",
+      "$admin_id": {
+        ".write": "auth != null && (auth.uid == $admin_id || root.child('admins').child(auth.uid).exists())"
+      }
+    },
+    
+    "teachers": {
+      ".read": "auth != null",
+      "$teacher_id": {
+        ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+      }
+    },
+    
+    "classes": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+    
+    "students": {
+      // Scanning terminal queries student names and photos publicly
+      ".read": "true",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+    
+    "attendance": {
+      // Reading logs is restricted to authorized school members
+      ".read": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('teachers').child(auth.uid).exists())",
+      "$date": {
+        "$reg_num": {
+          // Terminal records daily student check-ins
+          ".write": "true"
+        }
+      }
+    },
+    
+    "failedAttempts": {
+      ".read": "true",
+      ".write": "true"
+    },
+    
+    "settings": {
+      ".read": "true",
+      "system": {
+        ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+      }
+    }
+  }
+}

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Panel - Smart School Attendance System</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Brand Header -->
+  <header class="brand-header">
+    <div class="brand-info">
+      <img src="depaul-school-logo.png" alt="De Paul School Logo" class="brand-logo">
+      <div class="brand-title">
+        <h1>De Paul School</h1>
+        <p>Teacher Attendance Console</p>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div id="live-clock" style="font-family: monospace; font-size: 0.9rem; color: var(--primary); font-weight: 700; background: rgba(59, 130, 246, 0.1); padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.2); text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);"></div>
+      <div style="text-align: right;">
+        <span class="font-outfit" id="teacher-user-name" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; display: block;">Teacher Name</span>
+        <span id="teacher-class-tag" style="color: var(--primary); font-size: 0.75rem; font-weight: 700; background: var(--primary-light); padding: 0.15rem 0.5rem; border-radius: 9999px;">Class --</span>
+      </div>
+      <button class="btn btn-secondary" id="btn-teacher-logout" style="padding: 0.5rem 1rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+        <i data-lucide="log-out" style="width: 14px; height: 14px;"></i> Log Out
+      </button>
+    </div>
+  </header>
+
+  <!-- Notification Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- App Wrapper -->
+  <main class="app-container">
+    
+    <div class="dashboard-layout">
+      
+      <!-- Sidebar Navigation -->
+      <aside class="nav-aside glass-card">
+        <a href="#" class="nav-link active" data-tab="tab-class-monitor">
+          <i data-lucide="activity"></i> Class Monitor
+        </a>
+        <a href="#" class="nav-link" data-tab="tab-class-history">
+          <i data-lucide="history"></i> Attendance History
+        </a>
+      </aside>
+
+      <!-- Main Panel Work Area -->
+      <section class="dashboard-content">
+        
+        <!-- ==================== TAB: CLASS MONITOR ==================== -->
+        <div class="dashboard-tab active" id="tab-class-monitor">
+          <h2 class="font-outfit mb-4">Today's Class Snapshot</h2>
+          
+          <!-- Statistics Cards Row -->
+          <div class="stats-grid mb-6">
+            <div class="glass-card stat-card">
+              <div class="stat-header">
+                Total Class Students
+                <div class="stat-icon-wrapper"><i data-lucide="graduation-cap" style="width: 16px; height: 16px;"></i></div>
+              </div>
+              <div class="stat-value" id="stat-class-total">0</div>
+            </div>
+            
+            <div class="glass-card stat-card stat-success">
+              <div class="stat-header">
+                Present Today
+                <div class="stat-icon-wrapper"><i data-lucide="check-circle" style="width: 16px; height: 16px;"></i></div>
+              </div>
+              <div class="stat-value" id="stat-class-present">0</div>
+            </div>
+
+            <div class="glass-card stat-card stat-danger">
+              <div class="stat-header">
+                Absent Today
+                <div class="stat-icon-wrapper"><i data-lucide="x-circle" style="width: 16px; height: 16px;"></i></div>
+              </div>
+              <div class="stat-value" id="stat-class-absent">0</div>
+            </div>
+
+            <div class="glass-card stat-card stat-warning">
+              <div class="stat-header">
+                Late Entries
+                <div class="stat-icon-wrapper"><i data-lucide="clock" style="width: 16px; height: 16px;"></i></div>
+              </div>
+              <div class="stat-value" id="stat-class-late">0</div>
+            </div>
+          </div>
+
+          <!-- Today's Attendance Table -->
+          <div class="glass-card">
+            <div class="controls-row mb-4">
+              <h3 class="font-outfit">Today's Attendance Status</h3>
+              <div class="search-wrapper">
+                <i data-lucide="search" class="search-icon" style="width: 18px; height: 18px;"></i>
+                <input type="text" class="form-control search-input" id="class-student-search" placeholder="Search student name or roll...">
+              </div>
+            </div>
+            
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Photo</th>
+                    <th>Roll No</th>
+                    <th>Name</th>
+                    <th>Reg Number</th>
+                    <th>Entry Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="class-live-tbody">
+                  <tr>
+                    <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">No students loaded yet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== TAB: ATTENDANCE HISTORY ==================== -->
+        <div class="dashboard-tab" id="tab-class-history" style="display: none;">
+          <div class="controls-row mb-4">
+            <h2 class="font-outfit">Historical Check-in Logs</h2>
+          </div>
+
+          <!-- Filter controls -->
+          <div class="glass-card mb-6">
+            <div style="display: flex; gap: 1.5rem; align-items: end; flex-wrap: wrap; justify-content: space-between; width: 100%;">
+              <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Choose Date</label>
+                  <input type="date" class="form-control" id="history-date-filter">
+                </div>
+                <div class="form-group" style="margin-bottom: 0; max-width: 250px;">
+                  <label class="form-label">Search Student</label>
+                  <input type="text" class="form-control" id="history-search-input" placeholder="Search by name...">
+                </div>
+              </div>
+              <button class="btn btn-primary" id="btn-export-history-csv" style="height: 44px; display: flex; gap: 0.5rem; align-items: center;">
+                <i data-lucide="download" style="width: 18px; height: 18px;"></i> Export CSV Report
+              </button>
+            </div>
+          </div>
+
+          <!-- History table -->
+          <div class="glass-card">
+            <h3 class="font-outfit mb-4" id="history-table-heading">Attendance Record</h3>
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Photo</th>
+                    <th>Roll No</th>
+                    <th>Student Name</th>
+                    <th>Registration No</th>
+                    <th>Entry Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="history-logs-tbody">
+                  <tr>
+                    <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">Pick a date to browse records.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Loading Mask Overlay -->
+  <div class="loader-overlay" id="teacher-loader">
+    <div class="spinner"></div>
+    <p class="font-outfit" style="color: var(--primary); font-weight: 600; margin-top: 1rem;">Loading class panels...</p>
+  </div>
+
+  <!-- Teacher logic module -->
+  <script type="module" src="js/teacher.js"></script>
+</body>
+</html>

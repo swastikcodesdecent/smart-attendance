@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart School Attendance System - De Paul School</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Brand Header -->
+  <header class="brand-header">
+    <div class="brand-info">
+      <img src="depaul-school-logo.png" alt="De Paul School Logo" class="brand-logo" id="logo-img">
+      <div class="brand-title">
+        <h1>De Paul School</h1>
+        <p>Smart School Attendance Management System</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container" style="justify-content: center; flex: 1; align-items: center; max-width: 900px;">
+    
+    <div class="text-center mb-6">
+      <h2 class="font-outfit" style="font-size: 2.25rem; color: #ffffff; margin-bottom: 0.5rem;">Select Attendance Portal</h2>
+      <p style="color: var(--text-muted); font-size: 1rem;">Access role-based school management portals and scanning consoles.</p>
+    </div>
+
+    <!-- Portal Cards Grid -->
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); width: 100%; gap: 2rem; margin-top: 1rem;">
+      
+      <!-- Attendance Scan Terminal -->
+      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; height: 350px;">
+        <div>
+          <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(59, 130, 246, 0.15); color: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+            <i data-lucide="scan-line" style="width: 36px; height: 36px;"></i>
+          </div>
+          <h3 class="font-outfit mb-2" style="font-size: 1.4rem;">Attendance Portal</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.5;">
+            Dedicated scanner console for students to scan their QR ID cards and verify attendance via 4-digit PIN keys.
+          </p>
+        </div>
+        <button class="btn btn-primary" onclick="window.location.href='attendance.html'" style="width: 100%; margin-top: 1.5rem;">
+          Open Scan Terminal <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+        </button>
+      </div>
+
+      <!-- Teacher Portal -->
+      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; height: 350px;">
+        <div>
+          <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: var(--success); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+            <i data-lucide="presentation" style="width: 36px; height: 36px;"></i>
+          </div>
+          <h3 class="font-outfit mb-2" style="font-size: 1.4rem;">Teacher Panel</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.5;">
+            Monitor assigned class check-ins in real-time, browse history logs, perform searches, and export reports.
+          </p>
+        </div>
+        <button class="btn btn-secondary" id="go-teacher" style="width: 100%; margin-top: 1.5rem; border-color: rgba(16, 185, 129, 0.3); color: var(--success);">
+          Teacher Dashboard <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+        </button>
+      </div>
+
+      <!-- Admin Panel -->
+      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; height: 350px;">
+        <div>
+          <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(251, 191, 36, 0.15); color: var(--warning); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+            <i data-lucide="shield-check" style="width: 36px; height: 36px;"></i>
+          </div>
+          <h3 class="font-outfit mb-2" style="font-size: 1.4rem;">Admin Control</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.5;">
+            Manage school statistics, teacher and student registers, generate and print student ID cards, and compile school data.
+          </p>
+        </div>
+        <button class="btn btn-secondary" id="go-admin" style="width: 100%; margin-top: 1.5rem; border-color: rgba(251, 191, 36, 0.3); color: var(--warning);">
+          Admin Control Center <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer style="text-align: center; padding: 2rem; color: var(--text-light); font-size: 0.8rem; font-weight: 500;">
+    &copy; 2026 De Paul School. All Rights Reserved. Powered by Firebase Firestore.
+  </footer>
+
+  <!-- Session redirect check script -->
+  <script type="module">
+    import { checkSessionAndRedirect } from "./js/auth.js";
+
+    // Initialize lucide icons
+    lucide.createIcons();
+
+    // Redirect triggers
+    document.getElementById("go-admin").addEventListener("click", () => {
+      window.location.href = "admin.html";
+    });
+
+    document.getElementById("go-teacher").addEventListener("click", () => {
+      window.location.href = "teacher.html";
+    });
+
+    // Automatically route user if they are already logged in
+    checkSessionAndRedirect();
+  </script>
+</body>
+</html>
