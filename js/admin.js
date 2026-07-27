@@ -145,21 +145,31 @@ function setupLiveDashboardListeners() {
   onSnapshot(todayQuery, (snapshot) => {
     attendanceTodayCount = 0;
     lateTodayCount = 0;
-    const tableBody = document.getElementById("realtime-attendance-tbody");
+    const studentTbody = document.getElementById("realtime-student-tbody");
+    const teacherTbody = document.getElementById("realtime-teacher-tbody");
+    
+    studentTbody.innerHTML = "";
+    teacherTbody.innerHTML = "";
     
     if (snapshot.empty) {
-      tableBody.innerHTML = `
+      studentTbody.innerHTML = `
         <tr>
-          <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">No entries recorded today yet.</td>
+          <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">No student entries recorded today yet.</td>
+        </tr>
+      `;
+      teacherTbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">No teacher entries recorded today yet.</td>
         </tr>
       `;
     } else {
-      tableBody.innerHTML = "";
-      
       // Sort snapshots locally to show newest check-ins first
       const sortedDocs = [];
       snapshot.forEach(d => sortedDocs.push({ id: d.id, ...d.data() }));
       sortedDocs.sort((a, b) => b.entryTime.localeCompare(a.entryTime));
+
+      let studentRows = 0;
+      let teacherRows = 0;
 
       sortedDocs.forEach(record => {
         attendanceTodayCount++;
@@ -167,21 +177,60 @@ function setupLiveDashboardListeners() {
           lateTodayCount++;
         }
 
-        // Try searching for student photo from student list
-        const matchingStudent = studentsList.find(s => s.registrationNumber === record.registrationNumber);
-        const photoSrc = matchingStudent?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop";
+        const isTeacher = record.role === "teacher" || record.registrationNumber?.startsWith("TCH");
 
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td><img src="${photoSrc}" class="profile-avatar" alt="Photo"></td>
-          <td style="font-weight: 600;">${record.studentName}</td>
-          <td><span style="font-family: monospace; font-weight: 700; color: var(--primary);">${record.registrationNumber}</span></td>
-          <td>Class ${record.class}-${record.section}</td>
-          <td style="font-family: monospace; font-weight: 600;">${record.entryTime}</td>
-          <td><span class="badge badge-${record.status.toLowerCase()}">${record.status}</span></td>
-        `;
-        tableBody.appendChild(row);
+        if (isTeacher) {
+          teacherRows++;
+          // Try searching for teacher photo
+          const matchingTeacher = teachersList.find(t => t.teacherId === record.registrationNumber);
+          const photoSrc = matchingTeacher?.photoURL || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop";
+          const subjectDept = matchingTeacher 
+            ? `${matchingTeacher.subject || "N/A"} (${matchingTeacher.department || "N/A"})`
+            : "Faculty";
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td><img src="${photoSrc}" class="profile-avatar" alt="Photo"></td>
+            <td style="font-weight: 600;">${record.studentName}</td>
+            <td><span style="font-family: monospace; font-weight: 700; color: #10b981;">${record.registrationNumber}</span></td>
+            <td>${subjectDept}</td>
+            <td style="font-family: monospace; font-weight: 600;">${record.entryTime}</td>
+            <td><span class="badge badge-${record.status.toLowerCase()}">${record.status}</span></td>
+          `;
+          teacherTbody.appendChild(row);
+        } else {
+          studentRows++;
+          // Try searching for student photo
+          const matchingStudent = studentsList.find(s => s.registrationNumber === record.registrationNumber);
+          const photoSrc = matchingStudent?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop";
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td><img src="${photoSrc}" class="profile-avatar" alt="Photo"></td>
+            <td style="font-weight: 600;">${record.studentName}</td>
+            <td><span style="font-family: monospace; font-weight: 700; color: var(--primary);">${record.registrationNumber}</span></td>
+            <td>Class ${record.class}-${record.section}</td>
+            <td style="font-family: monospace; font-weight: 600;">${record.entryTime}</td>
+            <td><span class="badge badge-${record.status.toLowerCase()}">${record.status}</span></td>
+          `;
+          studentTbody.appendChild(row);
+        }
       });
+
+      if (studentRows === 0) {
+        studentTbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">No student entries recorded today yet.</td>
+          </tr>
+        `;
+      }
+      if (teacherRows === 0) {
+        teacherTbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">No teacher entries recorded today yet.</td>
+          </tr>
+        `;
+      }
     }
 
     document.getElementById("stat-present-today").innerText = attendanceTodayCount;
@@ -295,6 +344,7 @@ function setupStaticEventListeners() {
   const repDate = document.getElementById("report-date-filter");
   repDate.value = new Date().toISOString().split('T')[0]; // Default reports date to today
   repDate.addEventListener("change", loadReportsList);
+  document.getElementById("report-role-filter").addEventListener("change", loadReportsList);
   document.getElementById("report-class-filter").addEventListener("change", loadReportsList);
   document.getElementById("report-section-filter").addEventListener("change", loadReportsList);
 
@@ -981,6 +1031,7 @@ async function downloadIdCardSideAsPng(elementId, sideName) {
 async function loadReportsList() {
   const tbody = document.getElementById("reports-tbody");
   const dateVal = document.getElementById("report-date-filter").value;
+  const roleVal = document.getElementById("report-role-filter").value;
   const classVal = document.getElementById("report-class-filter").value;
   const secVal = document.getElementById("report-section-filter").value;
 
@@ -1010,7 +1061,13 @@ async function loadReportsList() {
       filteredRecords.push(docSnap.data());
     });
 
-    // Apply Client side filtering for class & section to run indexes-free!
+    // Apply Client side filtering for role, class & section to run indexes-free!
+    if (roleVal) {
+      filteredRecords = filteredRecords.filter(r => {
+        const isTeacher = r.role === "teacher" || r.registrationNumber?.startsWith("TCH");
+        return roleVal === "teacher" ? isTeacher : !isTeacher;
+      });
+    }
     if (classVal) {
       filteredRecords = filteredRecords.filter(r => r.class === classVal);
     }
