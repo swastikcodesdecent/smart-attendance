@@ -124,27 +124,58 @@
             </div>
           </div>
 
-          <!-- Real-Time Activity Log -->
-          <div class="glass-card">
-            <h3 class="font-outfit mb-4">Today's Real-time Check-ins</h3>
-            <div class="table-container">
-              <table class="custom-table">
-                <thead>
-                  <tr>
-                    <th>Photo</th>
-                    <th>Student Name</th>
-                    <th>Reg No</th>
-                    <th>Class</th>
-                    <th>Entry Time</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="realtime-attendance-tbody">
-                  <tr>
-                    <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">No entries recorded today yet.</td>
-                  </tr>
-                </tbody>
-              </table>
+          <!-- Real-Time Activity Log: Split Students & Teachers -->
+          <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+            <!-- Student Check-ins -->
+            <div class="glass-card">
+              <h3 class="font-outfit mb-4" style="color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="graduation-cap" style="width: 20px; height: 20px;"></i> Today's Student Check-ins
+              </h3>
+              <div class="table-container">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Photo</th>
+                      <th>Student Name</th>
+                      <th>Reg No</th>
+                      <th>Class</th>
+                      <th>Entry Time</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="realtime-student-tbody">
+                    <tr>
+                      <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">No student entries recorded today yet.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Teacher Check-ins -->
+            <div class="glass-card">
+              <h3 class="font-outfit mb-4" style="color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="contact" style="width: 20px; height: 20px;"></i> Today's Teacher Check-ins
+              </h3>
+              <div class="table-container">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Photo</th>
+                      <th>Teacher Name</th>
+                      <th>Teacher ID</th>
+                      <th>Subject / Dept</th>
+                      <th>Entry Time</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="realtime-teacher-tbody">
+                    <tr>
+                      <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">No teacher entries recorded today yet.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -234,6 +265,14 @@
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">Report Date</label>
                 <input type="date" class="form-control" id="report-date-filter">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">User Role</label>
+                <select class="form-control" id="report-role-filter">
+                  <option value="">All (Students & Teachers)</option>
+                  <option value="student">Students Only</option>
+                  <option value="teacher">Teachers Only</option>
+                </select>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">Class</label>
