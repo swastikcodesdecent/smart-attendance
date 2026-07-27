@@ -987,7 +987,7 @@ async function loadReportsList() {
   if (!dateVal) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">Please pick a valid date.</td>
+        <td colspan="8" class="text-center" style="color: var(--text-light); padding: 2rem;">Please pick a valid date.</td>
       </tr>
     `;
     return;
@@ -995,7 +995,7 @@ async function loadReportsList() {
 
   tbody.innerHTML = `
     <tr>
-      <td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading log records...</td>
+      <td colspan="8" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading log records...</td>
     </tr>
   `;
 
@@ -1023,7 +1023,7 @@ async function loadReportsList() {
     if (filteredRecords.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">No logs matched filtering criteria.</td>
+          <td colspan="8" class="text-center" style="color: var(--text-light); padding: 2rem;">No logs matched filtering criteria.</td>
         </tr>
       `;
       return;
@@ -1033,10 +1033,16 @@ async function loadReportsList() {
     filteredRecords.sort((a,b) => a.entryTime.localeCompare(b.entryTime));
 
     filteredRecords.forEach(record => {
+      const isTeacher = record.role === "teacher" || record.registrationNumber?.startsWith("TCH");
+      const roleBadge = isTeacher 
+        ? `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: rgb(16, 185, 129); font-weight:700;">Teacher</span>`
+        : `<span class="badge" style="background: rgba(59, 130, 246, 0.15); color: var(--primary); font-weight:700;">Student</span>`;
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td style="font-weight: 600;">${record.studentName}</td>
         <td><span style="font-family: monospace; font-weight:700;">${record.registrationNumber}</span></td>
+        <td>${roleBadge}</td>
         <td>Class ${record.class}</td>
         <td>Section ${record.section}</td>
         <td style="font-family: monospace;">${record.date}</td>
@@ -1050,7 +1056,7 @@ async function loadReportsList() {
     console.error(err);
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="text-center" style="color: var(--danger); padding: 2rem;">Failed to fetch logs: ${err.message}</td>
+        <td colspan="8" class="text-center" style="color: var(--danger); padding: 2rem;">Failed to fetch logs: ${err.message}</td>
       </tr>
     `;
   }
@@ -1069,19 +1075,20 @@ function triggerCsvDownload() {
   }
 
   let csvContent = "data:text/csv;charset=utf-8,";
-  csvContent += "Student Name,Registration Number,Class,Section,Date,Entry Time,Status\n";
+  csvContent += "Full Name,ID Number,Role,Class,Section,Date,Entry Time,Status\n";
 
   rows.forEach(tr => {
     const cols = tr.querySelectorAll("td");
     const name = cols[0].innerText;
     const reg = cols[1].innerText;
-    const cls = cols[2].innerText.replace("Class ", "");
-    const sec = cols[3].innerText.replace("Section ", "");
-    const date = cols[4].innerText;
-    const time = cols[5].innerText;
-    const status = cols[6].innerText;
+    const role = cols[2].innerText;
+    const cls = cols[3].innerText.replace("Class ", "");
+    const sec = cols[4].innerText.replace("Section ", "");
+    const date = cols[5].innerText;
+    const time = cols[6].innerText;
+    const status = cols[7].innerText;
 
-    csvContent += `"${name}","${reg}","${cls}","${sec}","${date}","${time}","${status}"\n`;
+    csvContent += `"${name}","${reg}","${role}","${cls}","${sec}","${date}","${time}","${status}"\n`;
   });
 
   const encodedUri = encodeURI(csvContent);
