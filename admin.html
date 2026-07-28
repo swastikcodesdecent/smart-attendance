@@ -57,7 +57,7 @@
           <i data-lucide="clipboard-list"></i> Reports
         </a>
         <a href="#" class="nav-link" data-tab="tab-admin-academic">
-          <i data-lucide="book-open"></i> Homework & Exams
+          <i data-lucide="calendar"></i> Exam Timetables
         </a>
         <a href="#" class="nav-link" data-tab="tab-admin-notices">
           <i data-lucide="bell"></i> School Notices
@@ -358,125 +358,60 @@
           </div>
         </div>
 
-        <!-- ==================== TAB: ADMIN ACADEMIC (HOMEWORK & EXAMS) ==================== -->
+        <!-- ==================== TAB: ADMIN ACADEMIC (EXAMS) ==================== -->
         <div class="dashboard-tab" id="tab-admin-academic" style="display: none;">
-          <h2 class="font-outfit mb-4">School Academic Management</h2>
+          <h2 class="font-outfit mb-4">Examination Timetable Management</h2>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;" class="mb-6">
-            
-            <!-- Post Homework Form -->
-            <div class="glass-card">
-              <h3 class="font-outfit mb-3" style="color: var(--primary);">Post Class Homework</h3>
-              <form id="form-admin-post-hw">
-                <div class="form-row mb-2">
-                  <div class="form-group">
-                    <label class="form-label">Target Class</label>
-                    <select class="form-control" id="admin-hw-class-select" required>
-                      <option value="All">All Classes</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Subject</label>
-                    <input type="text" class="form-control" id="admin-hw-subject" placeholder="e.g. Mathematics" required>
-                  </div>
-                </div>
-                <div class="form-row mb-2">
-                  <div class="form-group">
-                    <label class="form-label">Homework Title</label>
-                    <input type="text" class="form-control" id="admin-hw-title" placeholder="e.g. Worksheet #2" required>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Due Date</label>
-                    <input type="date" class="form-control" id="admin-hw-duedate" required>
-                  </div>
+          <!-- Post Exam Timetable Form -->
+          <div class="glass-card mb-6" style="max-width: 750px;">
+            <h3 class="font-outfit mb-3" style="color: var(--accent);">Publish Exam Timetable</h3>
+            <form id="form-admin-post-exam">
+              <div class="form-row mb-2">
+                <div class="form-group">
+                  <label class="form-label">Target Class</label>
+                  <select class="form-control" id="admin-exam-class-select" required>
+                    <option value="All">All Classes</option>
+                  </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Description & Instructions</label>
-                  <textarea class="form-control" id="admin-hw-desc" rows="3" placeholder="Enter assignment details..." required></textarea>
+                  <label class="form-label">Exam Title</label>
+                  <input type="text" class="form-control" id="admin-exam-name" placeholder="e.g. Final Assessment 2026" required>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
-                  <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i> Publish Homework
-                </button>
-              </form>
-            </div>
-
-            <!-- Post Exam Timetable Form -->
-            <div class="glass-card">
-              <h3 class="font-outfit mb-3" style="color: var(--accent);">Publish Exam Timetable</h3>
-              <form id="form-admin-post-exam">
-                <div class="form-row mb-2">
-                  <div class="form-group">
-                    <label class="form-label">Target Class</label>
-                    <select class="form-control" id="admin-exam-class-select" required>
-                      <option value="All">All Classes</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Exam Title</label>
-                    <input type="text" class="form-control" id="admin-exam-name" placeholder="e.g. Final Assessment 2026" required>
-                  </div>
+              </div>
+              <div class="form-row mb-2">
+                <div class="form-group">
+                  <label class="form-label">Subject</label>
+                  <input type="text" class="form-control" id="admin-exam-subject" placeholder="e.g. Science" required>
                 </div>
-                <div class="form-row mb-2">
-                  <div class="form-group">
-                    <label class="form-label">Subject</label>
-                    <input type="text" class="form-control" id="admin-exam-subject" placeholder="e.g. Science" required>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Exam Date</label>
-                    <input type="date" class="form-control" id="admin-exam-date" required>
-                  </div>
+                <div class="form-group">
+                  <label class="form-label">Exam Date</label>
+                  <input type="date" class="form-control" id="admin-exam-date" required>
                 </div>
-                <div class="form-row mb-2">
-                  <div class="form-group">
-                    <label class="form-label">Time Slot</label>
-                    <input type="text" class="form-control" id="admin-exam-time" placeholder="09:00 AM - 11:30 AM" required>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Room No</label>
-                    <input type="text" class="form-control" id="admin-exam-room" placeholder="Auditorium" required>
-                  </div>
+              </div>
+              <div class="form-row mb-2">
+                <div class="form-group">
+                  <label class="form-label">Time Slot</label>
+                  <input type="text" class="form-control" id="admin-exam-time" placeholder="09:00 AM - 11:30 AM" required>
                 </div>
-                <div class="form-row mb-2">
-                  <div class="form-group">
-                    <label class="form-label">Syllabus / Portion</label>
-                    <input type="text" class="form-control" id="admin-exam-syllabus" placeholder="Complete Term 1 & 2" required>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Total Marks</label>
-                    <input type="number" class="form-control" id="admin-exam-marks" value="100" required>
-                  </div>
+                <div class="form-group">
+                  <label class="form-label">Room No</label>
+                  <input type="text" class="form-control" id="admin-exam-room" placeholder="Auditorium" required>
                 </div>
-                <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; border-color: rgba(249, 115, 22, 0.4); color: var(--accent);">
-                  <i data-lucide="calendar-plus" style="width: 18px; height: 18px;"></i> Broadcast Exam Schedule
-                </button>
-              </form>
-            </div>
-
-          </div>
-
-          <!-- All Homework Table -->
-          <div class="glass-card mb-6">
-            <h3 class="font-outfit mb-4">Published Homework Assignments</h3>
-            <div class="table-container">
-              <table class="custom-table">
-                <thead>
-                  <tr>
-                    <th>Class</th>
-                    <th>Subject</th>
-                    <th>Title</th>
-                    <th>Due Date</th>
-                    <th>Posted By</th>
-                    <th>Instructions</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody id="admin-hw-tbody">
-                  <tr>
-                    <td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading published homework...</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+              </div>
+              <div class="form-row mb-2">
+                <div class="form-group">
+                  <label class="form-label">Syllabus / Portion</label>
+                  <input type="text" class="form-control" id="admin-exam-syllabus" placeholder="Complete Term 1 & 2" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Total Marks</label>
+                  <input type="number" class="form-control" id="admin-exam-marks" value="100" required>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; border-color: rgba(249, 115, 22, 0.4); color: var(--accent);">
+                <i data-lucide="calendar-plus" style="width: 18px; height: 18px;"></i> Broadcast Exam Schedule
+              </button>
+            </form>
           </div>
 
           <!-- All Exam Timetables Table -->
