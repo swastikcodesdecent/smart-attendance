@@ -249,82 +249,9 @@ function setupLiveDashboardListeners() {
   });
 }
 
-// Academic Management Listeners (Homework, Exam Timetables, Notices)
+// Academic Management Listeners (Exam Timetables, Notices, School Calendar)
 function setupAcademicDashboardListeners() {
-  // 1. Homework Listener & Admin Form
-  onSnapshot(collection(db, "homework"), (snapshot) => {
-    const tbody = document.getElementById("admin-hw-tbody");
-    if (!tbody) return;
-    tbody.innerHTML = "";
-    if (snapshot.empty) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">No published homework assignments found.</td></tr>`;
-      return;
-    }
-    snapshot.forEach(docSnap => {
-      const hw = { id: docSnap.id, ...docSnap.data() };
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><span class="badge" style="background: rgba(255, 107, 0, 0.15); color: var(--primary); font-weight:700;">Class ${hw.class || 'All'}</span></td>
-        <td><span style="font-weight: 700; color: var(--accent);">${hw.subject || 'General'}</span></td>
-        <td style="font-weight: 600;">${hw.title}</td>
-        <td style="font-family: monospace; font-weight: 700; color: var(--accent);">${hw.dueDate || 'N/A'}</td>
-        <td><span style="font-size: 0.85rem; color: var(--text-muted);">${hw.assignedBy || 'Administration'}</span></td>
-        <td style="font-size: 0.85rem; color: var(--text-muted); max-width: 250px;">${hw.description || ''}</td>
-        <td>
-          <button class="btn btn-secondary btn-del-admin-hw" data-id="${hw.id}" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--danger); border-color: rgba(244,63,94,0.3);">
-            <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Delete
-          </button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    document.querySelectorAll(".btn-del-admin-hw").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        if (confirm("Delete this homework assignment?")) {
-          try {
-            await deleteDoc(doc(db, "homework", btn.dataset.id));
-            showToast("Deleted", "Homework assignment deleted.", "success");
-          } catch (err) {
-            showToast("Error", err.message, "danger");
-          }
-        }
-      });
-    });
-    if (window.lucide) window.lucide.createIcons();
-  });
-
-  const formHw = document.getElementById("form-admin-post-hw");
-  if (formHw) {
-    formHw.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const targetClass = document.getElementById("admin-hw-class-select").value || "All";
-      const subject = document.getElementById("admin-hw-subject").value.trim();
-      const title = document.getElementById("admin-hw-title").value.trim();
-      const dueDate = document.getElementById("admin-hw-duedate").value;
-      const description = document.getElementById("admin-hw-desc").value.trim();
-
-      try {
-        await addDoc(collection(db, "homework"), {
-          class: targetClass,
-          subject: subject || "General",
-          title: title,
-          dueDate: dueDate,
-          description: description || "",
-          assignedBy: "School Administration",
-          assignedRole: "admin",
-          createdAt: Date.now()
-        });
-        formHw.reset();
-        showToast("Homework Published", `Posted homework for Class ${targetClass}`, "success");
-      } catch (err) {
-        console.error("Post homework error:", err);
-        showToast("Error", err.message || "Failed to publish homework", "danger");
-      }
-    });
-  }
-
-  // 2. Exam Timetables Listener & Admin Form
+  // 1. Exam Timetables Listener & Admin Form
   onSnapshot(collection(db, "examTimetables"), (snapshot) => {
     const tbody = document.getElementById("admin-exam-tbody");
     if (!tbody) return;
@@ -781,7 +708,6 @@ function renderStudentsTable(list) {
 function populateFilterOptions() {
   const classFilter = document.getElementById("report-class-filter");
   const secFilter = document.getElementById("report-section-filter");
-  const hwClassSelect = document.getElementById("admin-hw-class-select");
   const examClassSelect = document.getElementById("admin-exam-class-select");
   const noticeClassSelect = document.getElementById("admin-notice-class-select");
   const eventClassSelect = document.getElementById("admin-event-class-select");
@@ -816,7 +742,7 @@ function populateFilterOptions() {
   }
 
   const classListSorted = Array.from(classes).sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
-  [hwClassSelect, examClassSelect, noticeClassSelect, eventClassSelect].forEach(selectEl => {
+  [examClassSelect, noticeClassSelect, eventClassSelect].forEach(selectEl => {
     if (!selectEl) return;
     const currentVal = selectEl.value;
     selectEl.innerHTML = '<option value="All">All Classes</option>';
