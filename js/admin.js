@@ -49,6 +49,7 @@ async function initAdminPanel() {
 
     loaderText.innerText = "Initializing live listeners...";
     setupLiveDashboardListeners();
+    setupAcademicDashboardListeners();
     setupStaticEventListeners();
     startLiveClock();
     
@@ -245,6 +246,231 @@ function setupLiveDashboardListeners() {
       document.getElementById("settings-late-time").value = data.lateTime || "08:30";
     }
   });
+}
+
+// Academic Management Listeners (Homework, Exam Timetables, Notices)
+function setupAcademicDashboardListeners() {
+  // 1. Homework Listener & Admin Form
+  onSnapshot(collection(db, "homework"), (snapshot) => {
+    const tbody = document.getElementById("admin-hw-tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    if (snapshot.empty) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">No published homework assignments found.</td></tr>`;
+      return;
+    }
+    snapshot.forEach(docSnap => {
+      const hw = { id: docSnap.id, ...docSnap.data() };
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="badge" style="background: rgba(255, 107, 0, 0.15); color: var(--primary); font-weight:700;">Class ${hw.class || 'All'}</span></td>
+        <td><span style="font-weight: 700; color: var(--accent);">${hw.subject || 'General'}</span></td>
+        <td style="font-weight: 600;">${hw.title}</td>
+        <td style="font-family: monospace; font-weight: 700; color: var(--accent);">${hw.dueDate || 'N/A'}</td>
+        <td><span style="font-size: 0.85rem; color: var(--text-muted);">${hw.assignedBy || 'Administration'}</span></td>
+        <td style="font-size: 0.85rem; color: var(--text-muted); max-width: 250px;">${hw.description || ''}</td>
+        <td>
+          <button class="btn btn-secondary btn-del-admin-hw" data-id="${hw.id}" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--danger); border-color: rgba(244,63,94,0.3);">
+            <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Delete
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.querySelectorAll(".btn-del-admin-hw").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        if (confirm("Delete this homework assignment?")) {
+          try {
+            await deleteDoc(doc(db, "homework", btn.dataset.id));
+            showToast("Deleted", "Homework assignment deleted.", "success");
+          } catch (err) {
+            showToast("Error", err.message, "danger");
+          }
+        }
+      });
+    });
+    if (window.lucide) window.lucide.createIcons();
+  });
+
+  const formHw = document.getElementById("form-admin-post-hw");
+  if (formHw) {
+    formHw.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const targetClass = document.getElementById("admin-hw-class-select").value;
+      const subject = document.getElementById("admin-hw-subject").value.trim();
+      const title = document.getElementById("admin-hw-title").value.trim();
+      const dueDate = document.getElementById("admin-hw-duedate").value;
+      const description = document.getElementById("admin-hw-desc").value.trim();
+
+      try {
+        await setDoc(doc(db, "homework", `hw_${Date.now()}`), {
+          class: targetClass,
+          subject,
+          title,
+          dueDate,
+          description,
+          assignedBy: "School Administration",
+          assignedRole: "admin",
+          createdAt: Date.now()
+        });
+        formHw.reset();
+        showToast("Homework Published", `Posted homework for Class ${targetClass}`, "success");
+      } catch (err) {
+        showToast("Error", "Failed to publish homework", "danger");
+      }
+    });
+  }
+
+  // 2. Exam Timetables Listener & Admin Form
+  onSnapshot(collection(db, "examTimetables"), (snapshot) => {
+    const tbody = document.getElementById("admin-exam-tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    if (snapshot.empty) {
+      tbody.innerHTML = `<tr><td colspan="9" class="text-center" style="color: var(--text-light); padding: 2rem;">No published exam timetables found.</td></tr>`;
+      return;
+    }
+    snapshot.forEach(docSnap => {
+      const ex = { id: docSnap.id, ...docSnap.data() };
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="badge" style="background: rgba(255, 107, 0, 0.15); color: var(--primary); font-weight:700;">Class ${ex.class || 'All'}</span></td>
+        <td style="font-weight: 700; color: #ffffff;">${ex.examName || 'Exam'}</td>
+        <td><span style="font-weight: 700; color: var(--primary);">${ex.subject}</span></td>
+        <td style="font-family: monospace; font-weight: 600; color: var(--accent);">${ex.date || 'TBA'}</td>
+        <td style="font-family: monospace; font-size: 0.85rem;">${ex.timeSlot || '09:00 AM - 11:30 AM'}</td>
+        <td style="font-size: 0.85rem;">${ex.roomNo || 'Hall'}</td>
+        <td style="font-size: 0.85rem; color: var(--text-muted); max-width: 200px;">${ex.syllabus || ''}</td>
+        <td style="font-weight: 700; font-family: monospace; color: var(--success);">${ex.totalMarks || 100} Marks</td>
+        <td>
+          <button class="btn btn-secondary btn-del-admin-exam" data-id="${ex.id}" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--danger); border-color: rgba(244,63,94,0.3);">
+            <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Delete
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.querySelectorAll(".btn-del-admin-exam").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        if (confirm("Delete this exam timetable entry?")) {
+          try {
+            await deleteDoc(doc(db, "examTimetables", btn.dataset.id));
+            showToast("Deleted", "Exam timetable deleted.", "success");
+          } catch (err) {
+            showToast("Error", err.message, "danger");
+          }
+        }
+      });
+    });
+    if (window.lucide) window.lucide.createIcons();
+  });
+
+  const formExam = document.getElementById("form-admin-post-exam");
+  if (formExam) {
+    formExam.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const targetClass = document.getElementById("admin-exam-class-select").value;
+      const examName = document.getElementById("admin-exam-name").value.trim();
+      const subject = document.getElementById("admin-exam-subject").value.trim();
+      const date = document.getElementById("admin-exam-date").value;
+      const timeSlot = document.getElementById("admin-exam-time").value.trim();
+      const roomNo = document.getElementById("admin-exam-room").value.trim();
+      const syllabus = document.getElementById("admin-exam-syllabus").value.trim();
+      const totalMarks = document.getElementById("admin-exam-marks").value;
+
+      try {
+        await setDoc(doc(db, "examTimetables", `exam_${Date.now()}`), {
+          class: targetClass,
+          examName,
+          subject,
+          date,
+          timeSlot,
+          roomNo,
+          syllabus,
+          totalMarks,
+          assignedBy: "School Administration",
+          createdAt: Date.now()
+        });
+        formExam.reset();
+        showToast("Exam Schedule Published", `Posted exam schedule for Class ${targetClass}`, "success");
+      } catch (err) {
+        showToast("Error", "Failed to publish exam timetable", "danger");
+      }
+    });
+  }
+
+  // 3. School Notices Listener & Admin Form
+  onSnapshot(collection(db, "notices"), (snapshot) => {
+    const tbody = document.getElementById("admin-notice-tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    if (snapshot.empty) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">No posted school notices found.</td></tr>`;
+      return;
+    }
+    snapshot.forEach(docSnap => {
+      const n = { id: docSnap.id, ...docSnap.data() };
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="badge" style="background: rgba(255, 107, 0, 0.15); color: var(--primary); font-weight:700;">Class ${n.class || 'All'}</span></td>
+        <td><span style="font-weight: 700; color: var(--accent);">${n.category || 'General'}</span></td>
+        <td style="font-weight: 600;">${n.title}</td>
+        <td style="font-family: monospace; font-size: 0.85rem;">${n.date || ''}</td>
+        <td style="font-size: 0.85rem; color: var(--text-muted);">${n.postedBy || 'Administration'}</td>
+        <td style="font-size: 0.85rem; color: var(--text-muted); max-width: 250px;">${n.content}</td>
+        <td>
+          <button class="btn btn-secondary btn-del-admin-notice" data-id="${n.id}" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--danger); border-color: rgba(244,63,94,0.3);">
+            <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Delete
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.querySelectorAll(".btn-del-admin-notice").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        if (confirm("Delete this school notice?")) {
+          try {
+            await deleteDoc(doc(db, "notices", btn.dataset.id));
+            showToast("Deleted", "School notice removed.", "success");
+          } catch (err) {
+            showToast("Error", err.message, "danger");
+          }
+        }
+      });
+    });
+    if (window.lucide) window.lucide.createIcons();
+  });
+
+  const formNotice = document.getElementById("form-admin-post-notice");
+  if (formNotice) {
+    formNotice.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const targetClass = document.getElementById("admin-notice-class-select").value;
+      const category = document.getElementById("admin-notice-category").value;
+      const title = document.getElementById("admin-notice-title").value.trim();
+      const content = document.getElementById("admin-notice-content").value.trim();
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      try {
+        await setDoc(doc(db, "notices", `notice_${Date.now()}`), {
+          class: targetClass,
+          category,
+          title,
+          content,
+          date: todayStr,
+          postedBy: "School Administration",
+          createdAt: Date.now()
+        });
+        formNotice.reset();
+        showToast("Notice Broadcasted", `Published notice for Class ${targetClass}`, "success");
+      } catch (err) {
+        showToast("Error", "Failed to post school notice", "danger");
+      }
+    });
+  }
 }
 
 function updateDashboardAverages() {
@@ -468,6 +694,9 @@ function renderStudentsTable(list) {
 function populateFilterOptions() {
   const classFilter = document.getElementById("report-class-filter");
   const secFilter = document.getElementById("report-section-filter");
+  const hwClassSelect = document.getElementById("admin-hw-class-select");
+  const examClassSelect = document.getElementById("admin-exam-class-select");
+  const noticeClassSelect = document.getElementById("admin-notice-class-select");
   
   // Extract unique classes and sections
   const classes = new Set();
@@ -479,22 +708,35 @@ function populateFilterOptions() {
   });
 
   // Retain existing values selected
-  const prevClassVal = classFilter.value;
-  const prevSecVal = secFilter.value;
+  const prevClassVal = classFilter ? classFilter.value : "";
+  const prevSecVal = secFilter ? secFilter.value : "";
 
-  classFilter.innerHTML = '<option value="">All Classes</option>';
-  secFilter.innerHTML = '<option value="">All Sections</option>';
+  if (classFilter) {
+    classFilter.innerHTML = '<option value="">All Classes</option>';
+    Array.from(classes).sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true})).forEach(c => {
+      classFilter.innerHTML += `<option value="${c}">Class ${c}</option>`;
+    });
+    classFilter.value = prevClassVal;
+  }
 
-  Array.from(classes).sort().forEach(c => {
-    classFilter.innerHTML += `<option value="${c}">Class ${c}</option>`;
+  if (secFilter) {
+    secFilter.innerHTML = '<option value="">All Sections</option>';
+    Array.from(sections).sort().forEach(s => {
+      secFilter.innerHTML += `<option value="${s}">Section ${s}</option>`;
+    });
+    secFilter.value = prevSecVal;
+  }
+
+  const classListSorted = Array.from(classes).sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
+  [hwClassSelect, examClassSelect, noticeClassSelect].forEach(selectEl => {
+    if (!selectEl) return;
+    const currentVal = selectEl.value;
+    selectEl.innerHTML = '<option value="All">All Classes</option>';
+    classListSorted.forEach(c => {
+      selectEl.innerHTML += `<option value="${c}">Class ${c}</option>`;
+    });
+    if (currentVal) selectEl.value = currentVal;
   });
-
-  Array.from(sections).sort().forEach(s => {
-    secFilter.innerHTML += `<option value="${s}">Section ${s}</option>`;
-  });
-
-  classFilter.value = prevClassVal;
-  secFilter.value = prevSecVal;
 }
 
 // 5. Teacher Modal CRUD Logic
