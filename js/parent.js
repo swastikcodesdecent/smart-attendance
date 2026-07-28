@@ -28,6 +28,8 @@ let allExamTimetables = [];
 let allSchoolNotices = [];
 let assignedTeacherDoc = null;
 
+let allCalendarEvents = [];
+
 // DOM Elements
 const parentLoader = document.getElementById("parent-loader");
 const parentLoaderText = document.getElementById("parent-loader-text");
@@ -58,7 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.lucide) window.lucide.createIcons();
   startLiveClock();
   setupNavigationTabs();
-  loadQuickSelectChips();
 
   // Check saved session in localStorage
   const savedReg = localStorage.getItem("parent_student_reg");
@@ -185,41 +186,6 @@ async function loadChildProfileByReg(regNumber) {
   }
 }
 
-// Populate Quick Select Chips for easy demonstration
-async function loadQuickSelectChips() {
-  const container = document.getElementById("quick-students-chips");
-  if (!container) return;
-
-  try {
-    const snap = await getDocs(collection(db, "students"));
-    container.innerHTML = "";
-
-    if (snap.empty) {
-      container.innerHTML = `<span style="font-size: 0.75rem; color: var(--text-muted);">No student profiles created yet. Use Admin panel to add students.</span>`;
-      return;
-    }
-
-    snap.forEach(docSnap => {
-      const s = docSnap.data();
-      const chip = document.createElement("button");
-      chip.type = "button";
-      chip.className = "btn btn-secondary";
-      chip.style.cssText = "padding: 0.25rem 0.65rem; font-size: 0.75rem; border-color: rgba(249, 115, 22, 0.3); color: var(--accent);";
-      chip.innerHTML = `<i data-lucide="user" style="width: 12px; height: 12px;"></i> ${s.name} (${s.registrationNumber})`;
-      
-      chip.addEventListener("click", () => {
-        document.getElementById("input-parent-reg").value = s.registrationNumber;
-        document.getElementById("input-parent-pin").value = "1234"; // Default fill for demo ease
-      });
-      container.appendChild(chip);
-    });
-
-    if (window.lucide) window.lucide.createIcons();
-  } catch (e) {
-    console.error("Failed loading quick select chips:", e);
-  }
-}
-
 // Main Dashboard Initialization for Logged-In Student
 function initChildDashboard() {
   if (!currentStudent) return;
@@ -243,17 +209,109 @@ function initChildDashboard() {
 
   document.getElementById("hw-class-label").innerText = `${currentStudent.class}-${currentStudent.section}`;
   document.getElementById("exam-class-label").innerText = `${currentStudent.class}-${currentStudent.section}`;
+  const calLabel = document.getElementById("calendar-class-label");
+  if (calLabel) calLabel.innerText = `${currentStudent.class}-${currentStudent.section}`;
 
   // Setup Real-time Firestore Listeners
   setupAttendanceListener();
   setupHomeworkListener();
   setupExamTimetableListener();
   setupNoticesListener();
+  setupCalendarListener();
   fetchClassTeacherDetails();
 
   setTimeout(() => {
     parentLoader.classList.remove("active");
   }, 400);
+}
+
+// School Calendar Real-Time Listener
+function setupCalendarListener() {
+  const calCol = collection(db, "calendarEvents");
+  onSnapshot(calCol, (snapshot) => {
+    allCalendarEvents = [];
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const matchClass = !data.targetClass || String(data.targetClass) === "All" || String(data.targetClass) === String(currentStudent.class);
+      if (matchClass) {
+        allCalendarEvents.push({ id: docSnap.id, ...data });
+      }
+    });
+
+    renderCalendarEvents(allCalendarEvents);
+  });
+
+  const categorySelect = document.getElementById("parent-calendar-category-filter");
+  if (categorySelect) {
+    categorySelect.addEventListener("change", () => {
+      const catVal = categorySelect.value;
+      let filtered = [...allCalendarEvents];
+      if (catVal) {
+        filtered = filtered.filter(e => e.category === catVal);
+      }
+      renderCalendarEvents(filtered);
+    });
+  }
+}
+
+function renderCalendarEvents(events) {
+  const container = document.getElementById("parent-calendar-grid");
+  if (!container) return;
+  container.innerHTML = "";
+
+  if (!events || events.length === 0) {
+    container.innerHTML = `
+      <div class="glass-card text-center" style="grid-column: 1 / -1; padding: 3rem;">
+        <i data-lucide="calendar-days" style="width: 40px; height: 40px; color: var(--text-muted); margin-bottom: 0.5rem;"></i>
+        <p style="color: var(--text-muted);">No calendar events published for your criteria.</p>
+      </div>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+    return;
+  }
+
+  events.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+  events.forEach(ev => {
+    const card = document.createElement("div");
+    card.className = "glass-card";
+    card.style.cssText = "border-color: rgba(255, 107, 0, 0.3); display: flex; flex-direction: column; justify-content: space-between;";
+
+    let badgeColor = "rgba(255, 107, 0, 0.15)";
+    let textColor = "var(--primary)";
+
+    if (ev.category === "Holiday") {
+      badgeColor = "rgba(244, 63, 94, 0.18)";
+      textColor = "#f43f5e";
+    } else if (ev.category === "PTM Meeting") {
+      badgeColor = "rgba(16, 185, 129, 0.18)";
+      textColor = "#10b981";
+    } else if (ev.category === "Exams") {
+      badgeColor = "rgba(168, 85, 247, 0.18)";
+      textColor = "#c084fc";
+    }
+
+    card.innerHTML = `
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span style="font-size: 0.75rem; font-weight: 700; background: ${badgeColor}; color: ${textColor}; padding: 0.25rem 0.65rem; border-radius: 9999px; border: 1px solid ${badgeColor};">${ev.category || 'Event'}</span>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent); font-family: monospace;"><i data-lucide="calendar" style="width: 13px; height: 13px; vertical-align: middle;"></i> ${ev.date || 'TBA'}</span>
+        </div>
+
+        <h3 class="font-outfit mb-2" style="font-size: 1.2rem; color: #ffffff;">${ev.title}</h3>
+        <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.5; margin-bottom: 1rem; white-space: pre-line;">${ev.description || 'No additional details provided.'}</p>
+      </div>
+
+      <div style="padding-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.75rem; color: var(--text-light); display: flex; justify-content: space-between;">
+        <span>Target: <b>Class ${ev.targetClass || 'All'}</b></span>
+        <span>Published by: <b>${ev.createdBy || 'Administration'}</b></span>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+
+  if (window.lucide) window.lucide.createIcons();
 }
 
 // 1. Attendance Real-Time Listener
