@@ -7,6 +7,7 @@ import {
   doc, 
   getDoc, 
   setDoc, 
+  addDoc,
   getDocs, 
   deleteDoc, 
   query, 
@@ -297,19 +298,19 @@ function setupAcademicDashboardListeners() {
   if (formHw) {
     formHw.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const targetClass = document.getElementById("admin-hw-class-select").value;
+      const targetClass = document.getElementById("admin-hw-class-select").value || "All";
       const subject = document.getElementById("admin-hw-subject").value.trim();
       const title = document.getElementById("admin-hw-title").value.trim();
       const dueDate = document.getElementById("admin-hw-duedate").value;
       const description = document.getElementById("admin-hw-desc").value.trim();
 
       try {
-        await setDoc(doc(db, "homework", `hw_${Date.now()}`), {
+        await addDoc(collection(db, "homework"), {
           class: targetClass,
-          subject,
-          title,
-          dueDate,
-          description,
+          subject: subject || "General",
+          title: title,
+          dueDate: dueDate,
+          description: description || "",
           assignedBy: "School Administration",
           assignedRole: "admin",
           createdAt: Date.now()
@@ -317,7 +318,8 @@ function setupAcademicDashboardListeners() {
         formHw.reset();
         showToast("Homework Published", `Posted homework for Class ${targetClass}`, "success");
       } catch (err) {
-        showToast("Error", "Failed to publish homework", "danger");
+        console.error("Post homework error:", err);
+        showToast("Error", err.message || "Failed to publish homework", "danger");
       }
     });
   }
@@ -371,32 +373,33 @@ function setupAcademicDashboardListeners() {
   if (formExam) {
     formExam.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const targetClass = document.getElementById("admin-exam-class-select").value;
+      const targetClass = document.getElementById("admin-exam-class-select").value || "All";
       const examName = document.getElementById("admin-exam-name").value.trim();
       const subject = document.getElementById("admin-exam-subject").value.trim();
       const date = document.getElementById("admin-exam-date").value;
       const timeSlot = document.getElementById("admin-exam-time").value.trim();
       const roomNo = document.getElementById("admin-exam-room").value.trim();
       const syllabus = document.getElementById("admin-exam-syllabus").value.trim();
-      const totalMarks = document.getElementById("admin-exam-marks").value;
+      const totalMarks = document.getElementById("admin-exam-marks").value || "100";
 
       try {
-        await setDoc(doc(db, "examTimetables", `exam_${Date.now()}`), {
+        await addDoc(collection(db, "examTimetables"), {
           class: targetClass,
-          examName,
-          subject,
-          date,
-          timeSlot,
-          roomNo,
-          syllabus,
-          totalMarks,
+          examName: examName || "Examination",
+          subject: subject || "General",
+          date: date,
+          timeSlot: timeSlot || "09:00 AM - 11:30 AM",
+          roomNo: roomNo || "Main Examination Hall",
+          syllabus: syllabus || "",
+          totalMarks: totalMarks,
           assignedBy: "School Administration",
           createdAt: Date.now()
         });
         formExam.reset();
         showToast("Exam Schedule Published", `Posted exam schedule for Class ${targetClass}`, "success");
       } catch (err) {
-        showToast("Error", "Failed to publish exam timetable", "danger");
+        console.error("Post exam error:", err);
+        showToast("Error", err.message || "Failed to publish exam timetable", "danger");
       }
     });
   }
@@ -448,18 +451,18 @@ function setupAcademicDashboardListeners() {
   if (formNotice) {
     formNotice.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const targetClass = document.getElementById("admin-notice-class-select").value;
-      const category = document.getElementById("admin-notice-category").value;
+      const targetClass = document.getElementById("admin-notice-class-select").value || "All";
+      const category = document.getElementById("admin-notice-category").value || "General";
       const title = document.getElementById("admin-notice-title").value.trim();
       const content = document.getElementById("admin-notice-content").value.trim();
       const todayStr = new Date().toISOString().split('T')[0];
 
       try {
-        await setDoc(doc(db, "notices", `notice_${Date.now()}`), {
+        await addDoc(collection(db, "notices"), {
           class: targetClass,
-          category,
-          title,
-          content,
+          category: category,
+          title: title,
+          content: content,
           date: todayStr,
           postedBy: "School Administration",
           createdAt: Date.now()
@@ -467,7 +470,8 @@ function setupAcademicDashboardListeners() {
         formNotice.reset();
         showToast("Notice Broadcasted", `Published notice for Class ${targetClass}`, "success");
       } catch (err) {
-        showToast("Error", "Failed to post school notice", "danger");
+        console.error("Post notice error:", err);
+        showToast("Error", err.message || "Failed to post school notice", "danger");
       }
     });
   }
@@ -519,26 +523,38 @@ function setupAcademicDashboardListeners() {
   if (formEvent) {
     formEvent.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const category = document.getElementById("admin-event-category").value;
-      const targetClass = document.getElementById("admin-event-class-select").value;
-      const title = document.getElementById("admin-event-title").value.trim();
-      const date = document.getElementById("admin-event-date").value;
-      const description = document.getElementById("admin-event-desc").value.trim();
+      const categoryEl = document.getElementById("admin-event-category");
+      const targetClassEl = document.getElementById("admin-event-class-select");
+      const titleEl = document.getElementById("admin-event-title");
+      const dateEl = document.getElementById("admin-event-date");
+      const descEl = document.getElementById("admin-event-desc");
+
+      const category = categoryEl ? categoryEl.value : "Holiday";
+      const targetClass = targetClassEl ? targetClassEl.value : "All";
+      const title = titleEl ? titleEl.value.trim() : "";
+      const date = dateEl ? dateEl.value : "";
+      const description = descEl ? descEl.value.trim() : "";
+
+      if (!title || !date) {
+        showToast("Missing Fields", "Please enter the event title and date.", "warning");
+        return;
+      }
 
       try {
-        await setDoc(doc(db, "calendarEvents", `event_${Date.now()}`), {
-          category,
-          targetClass,
-          title,
-          date,
-          description,
+        await addDoc(collection(db, "calendarEvents"), {
+          category: category || "Holiday",
+          targetClass: targetClass || "All",
+          title: title,
+          date: date,
+          description: description || "",
           createdBy: "School Administration",
           createdAt: Date.now()
         });
         formEvent.reset();
         showToast("Calendar Event Published", `Event broadcasted for Class ${targetClass}`, "success");
       } catch (err) {
-        showToast("Error", "Failed to publish calendar event", "danger");
+        console.error("Post calendar event error:", err);
+        showToast("Error", err.message || "Failed to publish calendar event", "danger");
       }
     });
   }
