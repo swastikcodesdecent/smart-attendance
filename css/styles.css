@@ -1051,3 +1051,16 @@ select.form-control {
   flex-direction: column;
   gap: 2rem;
 }
+
+/* Responsive Grid Rules for Landing Page Portal Cards */
+@media (max-width: 1150px) {
+  .portal-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .portal-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
