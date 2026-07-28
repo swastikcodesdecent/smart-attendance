@@ -25,18 +25,18 @@
   </header>
 
   <!-- Main Container -->
-  <main class="app-container" style="justify-content: center; flex: 1; align-items: center; max-width: 900px;">
+  <main class="app-container" style="justify-content: center; flex: 1; max-width: 1250px; width: 90%; margin: 2rem auto;">
     
     <div class="text-center mb-6">
-      <h2 class="font-outfit" style="font-size: 2.25rem; color: #ffffff; margin-bottom: 0.5rem;">Select Attendance Portal</h2>
+      <h2 class="font-outfit" style="font-size: 2.25rem; color: #ffffff; margin-bottom: 0.5rem; background: var(--orange-white-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Select Attendance Portal</h2>
       <p style="color: var(--text-muted); font-size: 1rem;">Access role-based school management portals and scanning consoles.</p>
     </div>
 
     <!-- Portal Cards Grid -->
-    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); width: 100%; gap: 2rem; margin-top: 1rem;">
+    <div class="portal-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; gap: 1.5rem; margin-top: 1rem;">
       
       <!-- Attendance Scan Terminal -->
-      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; height: 350px;">
+      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 350px;">
         <div>
           <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(59, 130, 246, 0.15); color: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
             <i data-lucide="scan-line" style="width: 36px; height: 36px;"></i>
@@ -52,9 +52,9 @@
       </div>
 
       <!-- Parent Portal Card -->
-      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; height: 350px; border-color: rgba(255, 107, 0, 0.35);">
+      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 350px; border-color: rgba(255, 107, 0, 0.4); box-shadow: 0 8px 32px 0 rgba(255, 107, 0, 0.15);">
         <div>
-          <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255, 107, 0, 0.18); color: var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; border: 1px solid rgba(255, 107, 0, 0.3);">
+          <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255, 107, 0, 0.18); color: var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; border: 1px solid rgba(255, 107, 0, 0.35);">
             <i data-lucide="heart-handshake" style="width: 36px; height: 36px;"></i>
           </div>
           <h3 class="font-outfit mb-2" style="font-size: 1.4rem; background: var(--orange-white-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Parent Portal</h3>
@@ -68,7 +68,7 @@
       </div>
 
       <!-- Teacher Portal -->
-      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; height: 350px;">
+      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 350px;">
         <div>
           <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: var(--success); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
             <i data-lucide="presentation" style="width: 36px; height: 36px;"></i>
@@ -84,7 +84,7 @@
       </div>
 
       <!-- Admin Panel -->
-      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; height: 350px;">
+      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 350px;">
         <div>
           <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(251, 191, 36, 0.15); color: var(--warning); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
             <i data-lucide="shield-check" style="width: 36px; height: 36px;"></i>
