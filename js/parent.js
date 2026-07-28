@@ -550,21 +550,40 @@ function renderNoticesFeed(notices) {
 
 // 5. Fetch Class Teacher Info for current student's class
 async function fetchClassTeacherDetails() {
+  if (!currentStudent) return;
   try {
-    const q = query(collection(db, "teachers"), where("assignedClass", "==", currentStudent.class));
-    const snap = await getDocs(q);
+    const snap = await getDocs(collection(db, "teachers"));
+    let matchingTeacher = null;
 
-    if (!snap.empty) {
-      const t = snap.docs[0].data();
-      document.getElementById("class-teacher-name").innerText = t.name || "Class Teacher";
-      document.getElementById("class-teacher-subject").innerText = `Subject: ${t.subject || "Faculty"}`;
-      document.getElementById("class-teacher-email").innerText = t.email || "teacher@dps.com";
-      if (t.photoURL) {
-        document.getElementById("class-teacher-photo").src = t.photoURL;
+    snap.forEach(docSnap => {
+      const t = docSnap.data();
+      const matchClass = String(t.class) === String(currentStudent.class);
+      const matchSec = t.section && String(t.section).toUpperCase() === String(currentStudent.section).toUpperCase();
+
+      if (matchClass && matchSec) {
+        matchingTeacher = { id: docSnap.id, ...t };
+      } else if (matchClass && !matchingTeacher) {
+        matchingTeacher = { id: docSnap.id, ...t };
+      }
+    });
+
+    const nameEl = document.getElementById("class-teacher-name");
+    const subjEl = document.getElementById("class-teacher-subject");
+    const emailEl = document.getElementById("class-teacher-email");
+    const photoEl = document.getElementById("class-teacher-photo");
+
+    if (matchingTeacher) {
+      if (nameEl) nameEl.innerText = matchingTeacher.name || "Class Teacher";
+      if (subjEl) subjEl.innerText = matchingTeacher.subject 
+        ? `${matchingTeacher.subject} (${matchingTeacher.department || 'Faculty'})`
+        : `Class ${currentStudent.class}-${currentStudent.section} In-Charge`;
+      if (emailEl) emailEl.innerText = matchingTeacher.email || "teacher@depaulschool.com";
+      if (photoEl && matchingTeacher.photoURL) {
+        photoEl.src = matchingTeacher.photoURL;
       }
     } else {
-      document.getElementById("class-teacher-name").innerText = "De Paul Faculty";
-      document.getElementById("class-teacher-subject").innerText = `Class ${currentStudent.class} In-Charge`;
+      if (nameEl) nameEl.innerText = "De Paul Faculty";
+      if (subjEl) subjEl.innerText = `Class ${currentStudent.class}-${currentStudent.section} In-Charge`;
     }
   } catch (e) {
     console.error("Error fetching class teacher details:", e);
