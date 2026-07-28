@@ -471,6 +471,77 @@ function setupAcademicDashboardListeners() {
       }
     });
   }
+
+  // 4. School Calendar Listener & Admin Form
+  onSnapshot(collection(db, "calendarEvents"), (snapshot) => {
+    const tbody = document.getElementById("admin-calendar-tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    if (snapshot.empty) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">No published school calendar events found.</td></tr>`;
+      return;
+    }
+    snapshot.forEach(docSnap => {
+      const ev = { id: docSnap.id, ...docSnap.data() };
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="badge" style="background: rgba(255, 107, 0, 0.15); color: var(--primary); font-weight:700;">${ev.category || 'General'}</span></td>
+        <td><span class="badge" style="background: rgba(255, 255, 255, 0.1); color: #ffffff;">Class ${ev.targetClass || 'All'}</span></td>
+        <td style="font-weight: 600;">${ev.title}</td>
+        <td style="font-family: monospace; font-weight: 700; color: var(--accent);">${ev.date || 'TBA'}</td>
+        <td style="font-size: 0.85rem; color: var(--text-muted);">${ev.createdBy || 'Administration'}</td>
+        <td style="font-size: 0.85rem; color: var(--text-muted); max-width: 250px;">${ev.description || ''}</td>
+        <td>
+          <button class="btn btn-secondary btn-del-admin-event" data-id="${ev.id}" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--danger); border-color: rgba(244,63,94,0.3);">
+            <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Delete
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.querySelectorAll(".btn-del-admin-event").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        if (confirm("Delete this calendar event?")) {
+          try {
+            await deleteDoc(doc(db, "calendarEvents", btn.dataset.id));
+            showToast("Deleted", "Calendar event removed.", "success");
+          } catch (err) {
+            showToast("Error", err.message, "danger");
+          }
+        }
+      });
+    });
+    if (window.lucide) window.lucide.createIcons();
+  });
+
+  const formEvent = document.getElementById("form-admin-post-event");
+  if (formEvent) {
+    formEvent.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const category = document.getElementById("admin-event-category").value;
+      const targetClass = document.getElementById("admin-event-class-select").value;
+      const title = document.getElementById("admin-event-title").value.trim();
+      const date = document.getElementById("admin-event-date").value;
+      const description = document.getElementById("admin-event-desc").value.trim();
+
+      try {
+        await setDoc(doc(db, "calendarEvents", `event_${Date.now()}`), {
+          category,
+          targetClass,
+          title,
+          date,
+          description,
+          createdBy: "School Administration",
+          createdAt: Date.now()
+        });
+        formEvent.reset();
+        showToast("Calendar Event Published", `Event broadcasted for Class ${targetClass}`, "success");
+      } catch (err) {
+        showToast("Error", "Failed to publish calendar event", "danger");
+      }
+    });
+  }
 }
 
 function updateDashboardAverages() {
@@ -697,6 +768,7 @@ function populateFilterOptions() {
   const hwClassSelect = document.getElementById("admin-hw-class-select");
   const examClassSelect = document.getElementById("admin-exam-class-select");
   const noticeClassSelect = document.getElementById("admin-notice-class-select");
+  const eventClassSelect = document.getElementById("admin-event-class-select");
   
   // Extract unique classes and sections
   const classes = new Set();
@@ -728,7 +800,7 @@ function populateFilterOptions() {
   }
 
   const classListSorted = Array.from(classes).sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
-  [hwClassSelect, examClassSelect, noticeClassSelect].forEach(selectEl => {
+  [hwClassSelect, examClassSelect, noticeClassSelect, eventClassSelect].forEach(selectEl => {
     if (!selectEl) return;
     const currentVal = selectEl.value;
     selectEl.innerHTML = '<option value="All">All Classes</option>';
