@@ -9,6 +9,7 @@ import {
   getDocs,
   doc,
   setDoc,
+  addDoc,
   deleteDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -70,6 +71,7 @@ async function initTeacherPanel() {
     setupHomeworkListeners();
     setupExamListeners();
     setupNoticesListeners();
+    setupCalendarListeners();
     setupEventListeners();
     startLiveClock();
     
@@ -397,7 +399,7 @@ function setupHomeworkListeners() {
     const hwItems = [];
     snapshot.forEach(d => {
       const data = d.data();
-      if (!data.class || data.class === "All" || data.class === teacherClass) {
+      if (!data.class || data.class === "All" || String(data.class) === String(teacherClass)) {
         hwItems.push({ id: d.id, ...data });
       }
     });
@@ -405,7 +407,7 @@ function setupHomeworkListeners() {
     if (hwItems.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="6" class="text-center" style="color: var(--text-light); padding: 2rem;">No active homework posted for Class ${teacherClass}.</td>
+          <td colspan="8" class="text-center" style="color: var(--text-light); padding: 2rem;">No active homework posted for Class ${teacherClass}.</td>
         </tr>
       `;
       return;
@@ -413,12 +415,18 @@ function setupHomeworkListeners() {
 
     hwItems.forEach(hw => {
       const tr = document.createElement("tr");
+      const refLink = hw.referenceLink 
+        ? `<a href="${hw.referenceLink}" target="_blank" style="color: var(--accent); font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;"><i data-lucide="external-link" style="width: 12px; height: 12px;"></i> View Link</a>`
+        : `<span style="color: var(--text-light); font-size: 0.8rem;">None</span>`;
+
       tr.innerHTML = `
+        <td><span class="badge" style="background: rgba(255, 107, 0, 0.15); color: var(--primary); font-weight:700;">${hw.assignmentType || 'Daily Homework'}</span></td>
         <td><span style="font-weight: 700; color: var(--primary);">${hw.subject}</span></td>
         <td style="font-weight: 600;">${hw.title}</td>
         <td>Class ${hw.class || teacherClass}-${hw.section || teacherSection}</td>
         <td style="font-family: monospace; font-weight: 700; color: var(--accent);">${hw.dueDate}</td>
-        <td style="font-size: 0.85rem; color: var(--text-muted); max-width: 260px;">${hw.description}</td>
+        <td style="font-size: 0.85rem; color: var(--text-muted); max-width: 220px;">${hw.description}</td>
+        <td>${refLink}</td>
         <td>
           <button class="btn btn-secondary btn-delete-hw" data-id="${hw.id}" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--danger); border-color: rgba(244,63,94,0.3);">
             <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Delete
@@ -453,19 +461,22 @@ function setupHomeworkListeners() {
       e.preventDefault();
       const title = document.getElementById("teacher-hw-title").value.trim();
       const subject = document.getElementById("teacher-hw-subject").value.trim();
+      const assignmentType = document.getElementById("teacher-hw-type").value || "Daily Homework";
       const dueDate = document.getElementById("teacher-hw-duedate").value;
+      const referenceLink = document.getElementById("teacher-hw-link").value.trim();
       const description = document.getElementById("teacher-hw-desc").value.trim();
 
-      const docId = `hw_${Date.now()}`;
       try {
-        await setDoc(doc(db, "homework", docId), {
+        await addDoc(collection(db, "homework"), {
           title,
-          subject,
+          subject: subject || "General",
+          assignmentType: assignmentType || "Daily Homework",
           dueDate,
-          description,
+          referenceLink: referenceLink || "",
+          description: description || "",
           class: teacherClass,
           section: teacherSection,
-          assignedBy: teacherProfile.name || "Class Teacher",
+          assignedBy: (teacherProfile && teacherProfile.name) ? teacherProfile.name : "Class Teacher",
           assignedRole: "teacher",
           createdAt: Date.now()
         });
@@ -477,7 +488,7 @@ function setupHomeworkListeners() {
         showToast("Homework Published", `New assignment posted for Class ${teacherClass}-${teacherSection}.`, "success");
       } catch (err) {
         console.error("Post homework error:", err);
-        showToast("Error", "Failed to publish homework assignment.", "danger");
+        showToast("Error", err.message || "Failed to publish homework assignment.", "danger");
       }
     });
   }
@@ -556,21 +567,20 @@ function setupExamListeners() {
       const timeSlot = document.getElementById("teacher-exam-time").value.trim();
       const roomNo = document.getElementById("teacher-exam-room").value.trim();
       const syllabus = document.getElementById("teacher-exam-syllabus").value.trim();
-      const totalMarks = document.getElementById("teacher-exam-marks").value;
+      const totalMarks = document.getElementById("teacher-exam-marks").value || "100";
 
-      const docId = `exam_${Date.now()}`;
       try {
-        await setDoc(doc(db, "examTimetables", docId), {
-          examName,
-          subject,
+        await addDoc(collection(db, "examTimetables"), {
+          examName: examName || "Examination",
+          subject: subject || "General",
           date,
-          timeSlot,
-          roomNo,
-          syllabus,
-          totalMarks,
+          timeSlot: timeSlot || "09:00 AM - 11:30 AM",
+          roomNo: roomNo || "Main Examination Hall",
+          syllabus: syllabus || "",
+          totalMarks: totalMarks,
           class: teacherClass,
           section: teacherSection,
-          assignedBy: teacherProfile.name || "Class Teacher",
+          assignedBy: (teacherProfile && teacherProfile.name) ? teacherProfile.name : "Class Teacher",
           createdAt: Date.now()
         });
 
@@ -578,7 +588,7 @@ function setupExamListeners() {
         showToast("Exam Timetable Published", `${examName} (${subject}) schedule published.`, "success");
       } catch (err) {
         console.error("Post exam error:", err);
-        showToast("Error", "Failed to publish exam schedule.", "danger");
+        showToast("Error", err.message || "Failed to publish exam schedule.", "danger");
       }
     });
   }
@@ -595,7 +605,7 @@ function setupNoticesListeners() {
     const noticeItems = [];
     snapshot.forEach(d => {
       const data = d.data();
-      if (!data.class || data.class === "All" || data.class === teacherClass) {
+      if (!data.class || data.class === "All" || String(data.class) === String(teacherClass)) {
         noticeItems.push({ id: d.id, ...data });
       }
     });
@@ -649,20 +659,19 @@ function setupNoticesListeners() {
     noticeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const title = document.getElementById("teacher-notice-title").value.trim();
-      const category = document.getElementById("teacher-notice-category").value;
+      const category = document.getElementById("teacher-notice-category").value || "General";
       const content = document.getElementById("teacher-notice-content").value.trim();
       const todayStr = new Date().toISOString().split('T')[0];
 
-      const docId = `notice_${Date.now()}`;
       try {
-        await setDoc(doc(db, "notices", docId), {
+        await addDoc(collection(db, "notices"), {
           title,
           category,
           content,
           date: todayStr,
           class: teacherClass,
           section: teacherSection,
-          postedBy: teacherProfile.name || "Class Teacher",
+          postedBy: (teacherProfile && teacherProfile.name) ? teacherProfile.name : "Class Teacher",
           createdAt: Date.now()
         });
 
@@ -674,6 +683,96 @@ function setupNoticesListeners() {
       }
     });
   }
+}
+
+// 10. School Calendar Observer for Teachers
+let allTeacherCalendarEvents = [];
+
+function setupCalendarListeners() {
+  const calCol = collection(db, "calendarEvents");
+  onSnapshot(calCol, (snapshot) => {
+    allTeacherCalendarEvents = [];
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      if (!data.targetClass || data.targetClass === "All" || String(data.targetClass) === String(teacherClass)) {
+        allTeacherCalendarEvents.push({ id: docSnap.id, ...data });
+      }
+    });
+
+    renderTeacherCalendarGrid(allTeacherCalendarEvents);
+  });
+
+  const filterSelect = document.getElementById("teacher-calendar-category-filter");
+  if (filterSelect) {
+    filterSelect.addEventListener("change", () => {
+      const catVal = filterSelect.value;
+      let filtered = [...allTeacherCalendarEvents];
+      if (catVal) {
+        filtered = filtered.filter(e => e.category === catVal);
+      }
+      renderTeacherCalendarGrid(filtered);
+    });
+  }
+}
+
+function renderTeacherCalendarGrid(events) {
+  const container = document.getElementById("teacher-calendar-grid");
+  if (!container) return;
+  container.innerHTML = "";
+
+  if (!events || events.length === 0) {
+    container.innerHTML = `
+      <div class="glass-card text-center" style="grid-column: 1 / -1; padding: 3rem;">
+        <i data-lucide="calendar-days" style="width: 40px; height: 40px; color: var(--text-muted); margin-bottom: 0.5rem;"></i>
+        <p style="color: var(--text-muted);">No calendar events published.</p>
+      </div>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+    return;
+  }
+
+  events.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+  events.forEach(ev => {
+    const card = document.createElement("div");
+    card.className = "glass-card";
+    card.style.cssText = "border-color: rgba(255, 107, 0, 0.3); display: flex; flex-direction: column; justify-content: space-between;";
+
+    let badgeColor = "rgba(255, 107, 0, 0.15)";
+    let textColor = "var(--primary)";
+
+    if (ev.category === "Holiday") {
+      badgeColor = "rgba(244, 63, 94, 0.18)";
+      textColor = "#f43f5e";
+    } else if (ev.category === "PTM Meeting") {
+      badgeColor = "rgba(16, 185, 129, 0.18)";
+      textColor = "#10b981";
+    } else if (ev.category === "Exams") {
+      badgeColor = "rgba(168, 85, 247, 0.18)";
+      textColor = "#c084fc";
+    }
+
+    card.innerHTML = `
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span style="font-size: 0.75rem; font-weight: 700; background: ${badgeColor}; color: ${textColor}; padding: 0.25rem 0.65rem; border-radius: 9999px; border: 1px solid ${badgeColor};">${ev.category || 'Event'}</span>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent); font-family: monospace;"><i data-lucide="calendar" style="width: 13px; height: 13px; vertical-align: middle;"></i> ${ev.date || 'TBA'}</span>
+        </div>
+
+        <h3 class="font-outfit mb-2" style="font-size: 1.2rem; color: #ffffff;">${ev.title}</h3>
+        <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.5; margin-bottom: 1rem; white-space: pre-line;">${ev.description || 'No description provided.'}</p>
+      </div>
+
+      <div style="padding-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.75rem; color: var(--text-light); display: flex; justify-content: space-between;">
+        <span>Target: <b>Class ${ev.targetClass || 'All'}</b></span>
+        <span>Published by: <b>${ev.createdBy || 'Administration'}</b></span>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+
+  if (window.lucide) window.lucide.createIcons();
 }
 
 // Onload Handler
