@@ -61,16 +61,14 @@ document.addEventListener("DOMContentLoaded", () => {
   startLiveClock();
   setupNavigationTabs();
 
-  // Check saved session in localStorage
-  const savedReg = localStorage.getItem("parent_student_reg");
-  if (savedReg) {
-    loadChildProfileByReg(savedReg);
-  } else {
-    showAuthModal();
-  }
+  // Always show Auth Modal on load (do not auto-login)
+  localStorage.removeItem("parent_student_reg");
+  showAuthModal();
 
-  // Bind Switch Child Button
+  // Bind Switch Child / Log Out Button
   btnSwitchChild.addEventListener("click", () => {
+    currentStudent = null;
+    localStorage.removeItem("parent_student_reg");
     showAuthModal();
   });
 
@@ -104,10 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const enteredHash = await hashPIN(pinInput);
 
       if (enteredHash === studData.attendancePIN || pinInput === "1234" || pinInput === studData.pin) {
-        // Save session & load dashboard
-        localStorage.setItem("parent_student_reg", studData.registrationNumber);
         currentStudent = { id: studDoc.id, ...studData };
-        
         hideAuthModal();
         initChildDashboard();
       } else {
@@ -150,6 +145,10 @@ function showAuthModal() {
   modalChildAuth.style.display = "flex";
   parentDashboardLayout.style.display = "none";
   activeChildPill.style.display = "none";
+  const regEl = document.getElementById("input-parent-reg");
+  const pinEl = document.getElementById("input-parent-pin");
+  if (regEl) regEl.value = "";
+  if (pinEl) pinEl.value = "";
   document.getElementById("btn-switch-child-text").innerText = "Select Child";
 }
 
