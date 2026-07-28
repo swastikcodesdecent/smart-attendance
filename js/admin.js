@@ -1078,10 +1078,13 @@ async function handleStudentFormSubmit(e) {
         hashedPin = existing.attendancePIN;
       }
     } else {
-      // Auto generate format: REG + current_year + rolling_timestamp_digits
-      const year = new Date().getFullYear();
-      const rollingSeq = Date.now().toString().slice(-6); // 6 digits safe rolling
-      regNum = `REG${year}${rollingSeq}`;
+      // Short Registration Format: DPS101, DPS102, DPS103...
+      let seqNum = studentsList.length + 101;
+      regNum = `DPS${seqNum}`;
+      while (studentsList.some(s => s.registrationNumber === regNum)) {
+        seqNum++;
+        regNum = `DPS${seqNum}`;
+      }
       hashedPin = await hashPIN(rawPin);
     }
 
