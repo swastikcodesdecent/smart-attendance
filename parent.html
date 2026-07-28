@@ -55,7 +55,7 @@
     <div class="dashboard-layout" id="parent-dashboard-layout" style="display: none;">
       
       <!-- Sidebar Navigation -->
-      <aside class="nav-aside glass-card" style="border-color: rgba(249, 115, 22, 0.2);">
+      <aside class="nav-aside glass-card" style="border-color: rgba(255, 107, 0, 0.25);">
         <a href="#" class="nav-link active" data-tab="tab-entry-tracker">
           <i data-lucide="clock"></i> Entry & Attendance
         </a>
@@ -68,9 +68,12 @@
         <a href="#" class="nav-link" data-tab="tab-notices">
           <i data-lucide="bell"></i> Notices & Schedule
         </a>
+        <a href="#" class="nav-link" data-tab="tab-parent-calendar">
+          <i data-lucide="calendar-days"></i> School Calendar
+        </a>
         
         <div style="margin-top: auto; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08); text-align: center;">
-          <div style="background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.2); padding: 0.85rem; border-radius: var(--radius-md);">
+          <div style="background: rgba(255, 107, 0, 0.1); border: 1px solid rgba(255, 107, 0, 0.2); padding: 0.85rem; border-radius: var(--radius-md);">
             <i data-lucide="shield-check" style="width: 24px; height: 24px; color: var(--primary); margin-bottom: 0.25rem;"></i>
             <p style="font-size: 0.75rem; color: var(--text-muted);">Real-time verification powered by De Paul Attendance System</p>
           </div>
@@ -306,6 +309,33 @@
               </div>
             </div>
 
+        <!-- ==================== TAB 5: SCHOOL ACADEMIC CALENDAR ==================== -->
+        <div class="dashboard-tab" id="tab-parent-calendar" style="display: none;">
+          
+          <div class="controls-row mb-4" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h2 class="font-outfit">School Academic Calendar</h2>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Official holidays, PTM schedules, exam dates, and school events for Class <span id="calendar-class-label" style="color: var(--primary); font-weight: 700;">--</span></p>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <select class="form-control" id="parent-calendar-category-filter" style="min-width: 180px;">
+                <option value="">All Event Categories</option>
+                <option value="Holiday">School Holidays</option>
+                <option value="PTM Meeting">Parent-Teacher Meetings (PTMs)</option>
+                <option value="Exams">Exams & Tests</option>
+                <option value="Academic Event">Academic Events</option>
+                <option value="Sports & Cultural">Sports & Cultural</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Calendar Events Feed Grid -->
+          <div id="parent-calendar-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+            <div class="glass-card text-center" style="grid-column: 1 / -1; padding: 3rem;">
+              <i data-lucide="calendar-days" style="width: 40px; height: 40px; color: var(--text-muted); margin-bottom: 0.5rem;"></i>
+              <p style="color: var(--text-muted);">No calendar events published yet.</p>
+            </div>
           </div>
 
         </div>
@@ -316,10 +346,10 @@
 
     <!-- Child Selection / Login Modal -->
     <div id="modal-child-auth" class="modal-overlay" style="display: flex; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
-      <div class="glass-card" style="max-width: 480px; width: 100%; border-color: rgba(249, 115, 22, 0.35); box-shadow: 0 20px 50px rgba(249, 115, 22, 0.25);">
+      <div class="glass-card" style="max-width: 480px; width: 100%; border-color: rgba(255, 107, 0, 0.35); box-shadow: 0 20px 50px rgba(255, 107, 0, 0.25);">
         
         <div style="text-align: center; margin-bottom: 1.5rem;">
-          <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; border: 1px solid rgba(249, 115, 22, 0.3);">
+          <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; border: 1px solid rgba(255, 107, 0, 0.3);">
             <i data-lucide="users" style="width: 30px; height: 30px;"></i>
           </div>
           <h2 class="font-outfit" style="font-size: 1.5rem;">Parent Portal Login</h2>
@@ -352,13 +382,6 @@
             Access Parent Dashboard <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
           </button>
         </form>
-
-        <div style="margin-top: 1.5rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1rem;">
-          <p style="font-size: 0.8rem; color: var(--text-muted);">Quick Search Demo: Select from existing students</p>
-          <div id="quick-students-chips" style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-top: 0.75rem;">
-            <span style="font-size: 0.75rem; color: var(--text-light);">Loading registered students list...</span>
-          </div>
-        </div>
 
       </div>
     </div>
