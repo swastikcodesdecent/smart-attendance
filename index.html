@@ -51,6 +51,22 @@
         </button>
       </div>
 
+      <!-- Parent Portal Card -->
+      <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; height: 350px; border-color: rgba(255, 107, 0, 0.35);">
+        <div>
+          <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255, 107, 0, 0.18); color: var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; border: 1px solid rgba(255, 107, 0, 0.3);">
+            <i data-lucide="heart-handshake" style="width: 36px; height: 36px;"></i>
+          </div>
+          <h3 class="font-outfit mb-2" style="font-size: 1.4rem; background: var(--orange-white-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Parent Portal</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.5;">
+            Track real-time school entry timestamps, view homework, exam time tables, and official school notices for your child.
+          </p>
+        </div>
+        <button class="btn btn-primary" id="go-parent" style="width: 100%; margin-top: 1.5rem;">
+          Parent Dashboard <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+        </button>
+      </div>
+
       <!-- Teacher Portal -->
       <div class="glass-card hover-scale text-center" style="display: flex; flex-direction: column; justify-content: space-between; height: 350px;">
         <div>
@@ -59,7 +75,7 @@
           </div>
           <h3 class="font-outfit mb-2" style="font-size: 1.4rem;">Teacher Panel</h3>
           <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.5;">
-            Monitor assigned class check-ins in real-time, browse history logs, perform searches, and export reports.
+            Monitor assigned class check-ins in real-time, browse history logs, assign homework, publish exam schedules & notices.
           </p>
         </div>
         <button class="btn btn-secondary" id="go-teacher" style="width: 100%; margin-top: 1.5rem; border-color: rgba(16, 185, 129, 0.3); color: var(--success);">
@@ -75,7 +91,7 @@
           </div>
           <h3 class="font-outfit mb-2" style="font-size: 1.4rem;">Admin Control</h3>
           <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.5;">
-            Manage school statistics, teacher and student registers, generate and print student ID cards, and compile school data.
+            Manage school statistics, teacher and student registers, broadcast academic homework & notices, and print student ID cards.
           </p>
         </div>
         <button class="btn btn-secondary" id="go-admin" style="width: 100%; margin-top: 1.5rem; border-color: rgba(251, 191, 36, 0.3); color: var(--warning);">
@@ -87,8 +103,84 @@
 
   </main>
 
-  <footer style="text-align: center; padding: 2rem; color: var(--text-light); font-size: 0.8rem; font-weight: 500;">
-    &copy; 2026 De Paul School. All Rights Reserved. Powered by Firebase Firestore.
+  <!-- Enhanced Brand Footer -->
+  <footer class="app-footer" style="background: rgba(20, 10, 5, 0.85); backdrop-filter: blur(16px); border-top: 1px solid rgba(255, 107, 0, 0.25); margin-top: 3rem; padding: 3rem 1.5rem 1.5rem 1.5rem;">
+    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2.5rem; margin-bottom: 2.5rem;">
+      
+      <!-- Brand & About -->
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1rem;">
+          <img src="depaul-school-logo.png" alt="De Paul School Logo" style="height: 42px; width: auto; filter: drop-shadow(0 2px 8px rgba(255, 107, 0, 0.3));" onerror="this.style.display='none'">
+          <div>
+            <h3 class="font-outfit" style="font-size: 1.2rem; background: var(--orange-white-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">De Paul School</h3>
+            <p style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">Smart Attendance System</p>
+          </div>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">
+          Next-generation RFID & QR-based real-time attendance management, automated timestamp tracking, parent portal alerts, and administrative control.
+        </p>
+      </div>
+
+      <!-- Quick Access Portals -->
+      <div>
+        <h4 class="font-outfit" style="font-size: 1rem; color: #ffffff; margin-bottom: 1rem; position: relative; padding-bottom: 0.4rem;">
+          System Portals
+          <span style="position: absolute; bottom: 0; left: 0; width: 30px; height: 2px; background: var(--primary); border-radius: 2px;"></span>
+        </h4>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.85rem;">
+          <li><a href="attendance.html" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;"><i data-lucide="scan-line" style="width: 14px; height: 14px; color: var(--accent);"></i> Attendance Scanner Console</a></li>
+          <li><a href="parent.html" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;"><i data-lucide="heart-handshake" style="width: 14px; height: 14px; color: var(--primary);"></i> Parent Portal Dashboard</a></li>
+          <li><a href="teacher.html" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;"><i data-lucide="presentation" style="width: 14px; height: 14px; color: var(--success);"></i> Teacher Attendance Console</a></li>
+          <li><a href="admin.html" style="color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;"><i data-lucide="shield-check" style="width: 14px; height: 14px; color: var(--warning);"></i> Administration Control Panel</a></li>
+        </ul>
+      </div>
+
+      <!-- School Contact Info -->
+      <div>
+        <h4 class="font-outfit" style="font-size: 1rem; color: #ffffff; margin-bottom: 1rem; position: relative; padding-bottom: 0.4rem;">
+          School Information
+          <span style="position: absolute; bottom: 0; left: 0; width: 30px; height: 2px; background: var(--primary); border-radius: 2px;"></span>
+        </h4>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.85rem; color: var(--text-muted);">
+          <li style="display: flex; align-items: flex-start; gap: 0.5rem;"><i data-lucide="map-pin" style="width: 15px; height: 15px; color: var(--primary); flex-shrink: 0; margin-top: 0.2rem;"></i> <span>De Paul School Campus, Main Road, City Gate</span></li>
+          <li style="display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="mail" style="width: 15px; height: 15px; color: var(--primary); flex-shrink: 0;"></i> <span>info@depaulschool.com</span></li>
+          <li style="display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="phone" style="width: 15px; height: 15px; color: var(--primary); flex-shrink: 0;"></i> <span>+91 98765 43210</span></li>
+          <li style="display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="clock" style="width: 15px; height: 15px; color: var(--primary); flex-shrink: 0;"></i> <span>Office Hours: 07:30 AM - 04:00 PM</span></li>
+        </ul>
+      </div>
+
+      <!-- System Status Card -->
+      <div>
+        <h4 class="font-outfit" style="font-size: 1rem; color: #ffffff; margin-bottom: 1rem; position: relative; padding-bottom: 0.4rem;">
+          System Health
+          <span style="position: absolute; bottom: 0; left: 0; width: 30px; height: 2px; background: var(--primary); border-radius: 2px;"></span>
+        </h4>
+        <div style="background: rgba(255, 107, 0, 0.08); border: 1px solid rgba(255, 107, 0, 0.2); padding: 1rem; border-radius: var(--radius-md);">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; display: inline-block;"></span>
+            <span style="font-size: 0.8rem; font-weight: 700; color: #10b981;">Firebase Services Operational</span>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-light); line-height: 1.4;">
+            Real-time Firestore Database & Cloud Realtime Sync active. Live timestamps & PIN authentication enabled.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Bar -->
+    <div style="max-width: 1200px; margin: 0 auto; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.8rem; color: var(--text-light);">
+      <div>
+        &copy; 2026 <b>De Paul School</b>. All Rights Reserved. Smart Attendance Management System.
+      </div>
+      <div style="display: flex; gap: 1.5rem;">
+        <span>Privacy Policy</span>
+        <span>&bull;</span>
+        <span>Terms of Service</span>
+        <span>&bull;</span>
+        <span>Security PIN Help</span>
+      </div>
+    </div>
   </footer>
 
   <!-- Session redirect check script -->
@@ -99,6 +191,10 @@
     lucide.createIcons();
 
     // Redirect triggers
+    document.getElementById("go-parent").addEventListener("click", () => {
+      window.location.href = "parent.html";
+    });
+
     document.getElementById("go-admin").addEventListener("click", () => {
       window.location.href = "admin.html";
     });
