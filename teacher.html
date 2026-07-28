@@ -50,6 +50,15 @@
         <a href="#" class="nav-link" data-tab="tab-class-history">
           <i data-lucide="history"></i> Attendance History
         </a>
+        <a href="#" class="nav-link" data-tab="tab-teacher-homework">
+          <i data-lucide="book-open"></i> Assign Homework
+        </a>
+        <a href="#" class="nav-link" data-tab="tab-teacher-exams">
+          <i data-lucide="calendar"></i> Exams & Notices
+        </a>
+        <a href="#" class="nav-link" data-tab="tab-teacher-calendar">
+          <i data-lucide="calendar-days"></i> School Calendar
+        </a>
       </aside>
 
       <!-- Main Panel Work Area -->
@@ -172,6 +181,251 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== TAB: TEACHER HOMEWORK ==================== -->
+        <div class="dashboard-tab" id="tab-teacher-homework" style="display: none;">
+          <h2 class="font-outfit mb-4">Class Homework & Assignment Management</h2>
+
+          <!-- Post Homework Form -->
+          <div class="glass-card mb-6">
+            <h3 class="font-outfit mb-3" style="color: var(--primary);">Post New Assignment</h3>
+            <form id="form-teacher-post-hw">
+              <div class="form-row mb-2">
+                <div class="form-group">
+                  <label class="form-label">Homework Title</label>
+                  <input type="text" class="form-control" id="teacher-hw-title" placeholder="e.g. Chapter 4 Practice Questions" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Subject</label>
+                  <input type="text" class="form-control" id="teacher-hw-subject" placeholder="e.g. Mathematics / Science" required>
+                </div>
+              </div>
+
+              <div class="form-row mb-2">
+                <div class="form-group">
+                  <label class="form-label">Assignment Category / Type</label>
+                  <select class="form-control" id="teacher-hw-type" required>
+                    <option value="Daily Homework">Daily Homework</option>
+                    <option value="Project Work">Project Work</option>
+                    <option value="Weekly Quiz">Weekly Quiz</option>
+                    <option value="Revision Assignment">Revision Assignment</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Submission Due Date</label>
+                  <input type="date" class="form-control" id="teacher-hw-duedate" required>
+                </div>
+              </div>
+
+              <div class="form-row mb-2">
+                <div class="form-group">
+                  <label class="form-label">Assigned Target Class</label>
+                  <input type="text" class="form-control" id="teacher-hw-class" readonly style="background: rgba(0,0,0,0.3); font-weight: 700; color: var(--accent);">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Reference Link / Attachment URL (Optional)</label>
+                  <input type="url" class="form-control" id="teacher-hw-link" placeholder="https://drive.google.com/... or reference link">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Description & Detailed Instructions</label>
+                <textarea class="form-control" id="teacher-hw-desc" rows="3" placeholder="Provide assignment instructions, page numbers, or submission requirements..." required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+                <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i> Publish Homework Assignment
+              </button>
+            </form>
+          </div>
+
+          <!-- Existing Homework List -->
+          <div class="glass-card">
+            <h3 class="font-outfit mb-4">Active Class Assignments</h3>
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Subject</th>
+                    <th>Title</th>
+                    <th>Class</th>
+                    <th>Due Date</th>
+                    <th>Instructions</th>
+                    <th>Reference</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="teacher-hw-tbody">
+                  <tr>
+                    <td colspan="8" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading class homework...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== TAB: TEACHER EXAMS & NOTICES ==================== -->
+        <div class="dashboard-tab" id="tab-teacher-exams" style="display: none;">
+          <h2 class="font-outfit mb-4">Exam Timetables & Class Announcements</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;" class="mb-6">
+            
+            <!-- Publish Exam Timetable Form -->
+            <div class="glass-card">
+              <h3 class="font-outfit mb-3" style="color: var(--primary);">Publish Exam Timetable</h3>
+              <form id="form-teacher-post-exam">
+                <div class="form-group">
+                  <label class="form-label">Exam Title</label>
+                  <input type="text" class="form-control" id="teacher-exam-name" placeholder="e.g. Mid-Term Examination 2026" required>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Subject</label>
+                    <input type="text" class="form-control" id="teacher-exam-subject" placeholder="e.g. Physics" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Exam Date</label>
+                    <input type="date" class="form-control" id="teacher-exam-date" required>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Time Slot</label>
+                    <input type="text" class="form-control" id="teacher-exam-time" placeholder="09:00 AM - 11:30 AM" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Room No</label>
+                    <input type="text" class="form-control" id="teacher-exam-room" placeholder="Hall 201" required>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Portion / Syllabus</label>
+                    <input type="text" class="form-control" id="teacher-exam-syllabus" placeholder="Chapters 1 to 5" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Total Marks</label>
+                    <input type="number" class="form-control" id="teacher-exam-marks" value="100" required>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+                  <i data-lucide="calendar-plus" style="width: 18px; height: 18px;"></i> Add to Exam Timetable
+                </button>
+              </form>
+            </div>
+
+            <!-- Post Class Notice Form -->
+            <div class="glass-card">
+              <h3 class="font-outfit mb-3" style="color: var(--accent);">Post Class Notice</h3>
+              <form id="form-teacher-post-notice">
+                <div class="form-group">
+                  <label class="form-label">Notice Title</label>
+                  <input type="text" class="form-control" id="teacher-notice-title" placeholder="e.g. Science Exhibition Materials" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Category</label>
+                  <select class="form-control" id="teacher-notice-category">
+                    <option value="Class Announcement">Class Announcement</option>
+                    <option value="Homework Alert">Homework Alert</option>
+                    <option value="Exam Routine">Exam Routine</option>
+                    <option value="Urgent Notice">Urgent Notice</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Content / Message</label>
+                  <textarea class="form-control" id="teacher-notice-content" rows="4" placeholder="Write notice content for parents & students..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; border-color: rgba(249, 115, 22, 0.4); color: var(--accent);">
+                  <i data-lucide="send" style="width: 18px; height: 18px;"></i> Broadcast Notice to Parents
+                </button>
+              </form>
+            </div>
+
+          </div>
+
+          <!-- Existing Exam Timetable Table -->
+          <div class="glass-card mb-6">
+            <h3 class="font-outfit mb-4">Published Exam Schedules</h3>
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Exam Name</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Time Slot</th>
+                    <th>Room</th>
+                    <th>Syllabus</th>
+                    <th>Marks</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="teacher-exam-tbody">
+                  <tr>
+                    <td colspan="8" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading exam schedules...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Existing Notices Table -->
+          <div class="glass-card">
+            <h3 class="font-outfit mb-4">Posted Class Announcements</h3>
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Notice Title</th>
+                    <th>Date Posted</th>
+                    <th>Message</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="teacher-notice-tbody">
+                  <tr>
+                    <td colspan="5" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading class notices...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==================== TAB: TEACHER SCHOOL CALENDAR ==================== -->
+        <div class="dashboard-tab" id="tab-teacher-calendar" style="display: none;">
+          <h2 class="font-outfit mb-4">School Academic Calendar & Event Schedule</h2>
+
+          <div class="glass-card mb-6">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <h3 class="font-outfit mb-1" style="color: var(--primary);">Upcoming School Events</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem;">Official holidays, PTM meetings, exams, and school circular events</p>
+              </div>
+              
+              <select class="form-control" id="teacher-calendar-category-filter" style="max-width: 220px;">
+                <option value="">All Categories</option>
+                <option value="Holiday">Holidays</option>
+                <option value="PTM Meeting">Parent-Teacher Meetings</option>
+                <option value="Exams">Exams</option>
+                <option value="Academic Event">Academic Events</option>
+                <option value="Sports & Cultural">Sports & Cultural</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Calendar Event Cards -->
+          <div id="teacher-calendar-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+            <div class="glass-card text-center" style="grid-column: 1 / -1; padding: 3rem;">
+              <i data-lucide="calendar-days" style="width: 40px; height: 40px; color: var(--text-muted); margin-bottom: 0.5rem;"></i>
+              <p style="color: var(--text-muted);">No calendar events published.</p>
             </div>
           </div>
         </div>
