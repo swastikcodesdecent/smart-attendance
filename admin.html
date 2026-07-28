@@ -56,10 +56,22 @@
         <a href="#" class="nav-link" data-tab="tab-reports">
           <i data-lucide="clipboard-list"></i> Reports
         </a>
+        <a href="#" class="nav-link" data-tab="tab-admin-academic">
+          <i data-lucide="book-open"></i> Homework & Exams
+        </a>
+        <a href="#" class="nav-link" data-tab="tab-admin-notices">
+          <i data-lucide="bell"></i> School Notices
+        </a>
+        <a href="#" class="nav-link" data-tab="tab-admin-calendar">
+          <i data-lucide="calendar-days"></i> School Calendar
+        </a>
         <a href="#" class="nav-link" data-tab="tab-settings">
           <i data-lucide="settings"></i> System Settings
         </a>
-        <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(226, 232, 240, 0.6); display: flex; flex-direction: column; gap: 0.5rem;">
+        <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; gap: 0.5rem;">
+          <a href="parent.html" target="_blank" class="nav-link" style="color: var(--accent);">
+            <i data-lucide="heart-handshake"></i> Parent Portal
+          </a>
           <a href="attendance.html" target="_blank" class="nav-link" style="color: var(--primary);">
             <i data-lucide="scan-line"></i> Launch Portal
           </a>
@@ -343,6 +355,299 @@
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+
+        <!-- ==================== TAB: ADMIN ACADEMIC (HOMEWORK & EXAMS) ==================== -->
+        <div class="dashboard-tab" id="tab-admin-academic" style="display: none;">
+          <h2 class="font-outfit mb-4">School Academic Management</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;" class="mb-6">
+            
+            <!-- Post Homework Form -->
+            <div class="glass-card">
+              <h3 class="font-outfit mb-3" style="color: var(--primary);">Post Class Homework</h3>
+              <form id="form-admin-post-hw">
+                <div class="form-row mb-2">
+                  <div class="form-group">
+                    <label class="form-label">Target Class</label>
+                    <select class="form-control" id="admin-hw-class-select" required>
+                      <option value="All">All Classes</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Subject</label>
+                    <input type="text" class="form-control" id="admin-hw-subject" placeholder="e.g. Mathematics" required>
+                  </div>
+                </div>
+                <div class="form-row mb-2">
+                  <div class="form-group">
+                    <label class="form-label">Homework Title</label>
+                    <input type="text" class="form-control" id="admin-hw-title" placeholder="e.g. Worksheet #2" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" class="form-control" id="admin-hw-duedate" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Description & Instructions</label>
+                  <textarea class="form-control" id="admin-hw-desc" rows="3" placeholder="Enter assignment details..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+                  <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i> Publish Homework
+                </button>
+              </form>
+            </div>
+
+            <!-- Post Exam Timetable Form -->
+            <div class="glass-card">
+              <h3 class="font-outfit mb-3" style="color: var(--accent);">Publish Exam Timetable</h3>
+              <form id="form-admin-post-exam">
+                <div class="form-row mb-2">
+                  <div class="form-group">
+                    <label class="form-label">Target Class</label>
+                    <select class="form-control" id="admin-exam-class-select" required>
+                      <option value="All">All Classes</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Exam Title</label>
+                    <input type="text" class="form-control" id="admin-exam-name" placeholder="e.g. Final Assessment 2026" required>
+                  </div>
+                </div>
+                <div class="form-row mb-2">
+                  <div class="form-group">
+                    <label class="form-label">Subject</label>
+                    <input type="text" class="form-control" id="admin-exam-subject" placeholder="e.g. Science" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Exam Date</label>
+                    <input type="date" class="form-control" id="admin-exam-date" required>
+                  </div>
+                </div>
+                <div class="form-row mb-2">
+                  <div class="form-group">
+                    <label class="form-label">Time Slot</label>
+                    <input type="text" class="form-control" id="admin-exam-time" placeholder="09:00 AM - 11:30 AM" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Room No</label>
+                    <input type="text" class="form-control" id="admin-exam-room" placeholder="Auditorium" required>
+                  </div>
+                </div>
+                <div class="form-row mb-2">
+                  <div class="form-group">
+                    <label class="form-label">Syllabus / Portion</label>
+                    <input type="text" class="form-control" id="admin-exam-syllabus" placeholder="Complete Term 1 & 2" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Total Marks</label>
+                    <input type="number" class="form-control" id="admin-exam-marks" value="100" required>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; border-color: rgba(249, 115, 22, 0.4); color: var(--accent);">
+                  <i data-lucide="calendar-plus" style="width: 18px; height: 18px;"></i> Broadcast Exam Schedule
+                </button>
+              </form>
+            </div>
+
+          </div>
+
+          <!-- All Homework Table -->
+          <div class="glass-card mb-6">
+            <h3 class="font-outfit mb-4">Published Homework Assignments</h3>
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Class</th>
+                    <th>Subject</th>
+                    <th>Title</th>
+                    <th>Due Date</th>
+                    <th>Posted By</th>
+                    <th>Instructions</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-hw-tbody">
+                  <tr>
+                    <td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading published homework...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- All Exam Timetables Table -->
+          <div class="glass-card">
+            <h3 class="font-outfit mb-4">Published Examination Timetables</h3>
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Class</th>
+                    <th>Exam Name</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Time Slot</th>
+                    <th>Room</th>
+                    <th>Syllabus</th>
+                    <th>Marks</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-exam-tbody">
+                  <tr>
+                    <td colspan="9" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading exam timetables...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== TAB: ADMIN NOTICES ==================== -->
+        <div class="dashboard-tab" id="tab-admin-notices" style="display: none;">
+          <h2 class="font-outfit mb-4">School Notices & Broadcast Announcements</h2>
+
+          <!-- Notice Form -->
+          <div class="glass-card mb-6" style="max-width: 700px;">
+            <h3 class="font-outfit mb-3" style="color: var(--primary);">Broadcast School Notice</h3>
+            <form id="form-admin-post-notice">
+              <div class="form-row mb-2">
+                <div class="form-group">
+                  <label class="form-label">Target Audience Class</label>
+                  <select class="form-control" id="admin-notice-class-select" required>
+                    <option value="All">All School Classes</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Notice Category</label>
+                  <select class="form-control" id="admin-notice-category">
+                    <option value="School Circular">School Circular</option>
+                    <option value="Event Announcement">Event Announcement</option>
+                    <option value="Holiday Notice">Holiday Notice</option>
+                    <option value="Exam Routine">Exam Routine</option>
+                    <option value="Urgent Notice">Urgent Notice</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group mb-2">
+                <label class="form-label">Notice Title</label>
+                <input type="text" class="form-control" id="admin-notice-title" placeholder="e.g. Annual Sports Day Schedule & Instructions" required>
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="form-label">Notice Content</label>
+                <textarea class="form-control" id="admin-notice-content" rows="4" placeholder="Type official notice message for parents and students..." required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <i data-lucide="send" style="width: 18px; height: 18px;"></i> Broadcast Notice to Parent Portal
+              </button>
+            </form>
+          </div>
+
+          <!-- All Notices Table -->
+          <div class="glass-card">
+            <h3 class="font-outfit mb-4">Posted School Notices</h3>
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Target Class</th>
+                    <th>Category</th>
+                    <th>Title</th>
+                    <th>Date Posted</th>
+                    <th>Posted By</th>
+                    <th>Message Content</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-notice-tbody">
+                  <tr>
+                    <td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading posted school notices...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== TAB: ADMIN SCHOOL CALENDAR ==================== -->
+        <div class="dashboard-tab" id="tab-admin-calendar" style="display: none;">
+          <h2 class="font-outfit mb-4">School Academic Calendar & Event Management</h2>
+
+          <!-- Post Event Form -->
+          <div class="glass-card mb-6" style="max-width: 750px;">
+            <h3 class="font-outfit mb-3" style="color: var(--primary);">Publish School Calendar Event</h3>
+            <form id="form-admin-post-event">
+              <div class="form-row mb-2">
+                <div class="form-group">
+                  <label class="form-label">Event Category / Type</label>
+                  <select class="form-control" id="admin-event-category" required>
+                    <option value="Holiday">School Holiday</option>
+                    <option value="PTM Meeting">Parent-Teacher Meeting (PTM)</option>
+                    <option value="Exams">Exams & Tests Schedule</option>
+                    <option value="Academic Event">Academic Event</option>
+                    <option value="Sports & Cultural">Sports & Cultural Event</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Target Audience Class</label>
+                  <select class="form-control" id="admin-event-class-select" required>
+                    <option value="All">All School Classes</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row mb-2">
+                <div class="form-group">
+                  <label class="form-label">Event Title</label>
+                  <input type="text" class="form-control" id="admin-event-title" placeholder="e.g. Annual Sports Meet 2026 / Diwali Holiday" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Event Date</label>
+                  <input type="date" class="form-control" id="admin-event-date" required>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="form-label">Event Description & Details</label>
+                <textarea class="form-control" id="admin-event-desc" rows="3" placeholder="Provide event timings, venue, or guidelines for parents, students & teachers..." required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <i data-lucide="calendar-plus" style="width: 18px; height: 18px;"></i> Broadcast Event to School Calendar
+              </button>
+            </form>
+          </div>
+
+          <!-- All Calendar Events Table -->
+          <div class="glass-card">
+            <h3 class="font-outfit mb-4">Published Calendar Events</h3>
+            <div class="table-container">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Target Class</th>
+                    <th>Event Title</th>
+                    <th>Date</th>
+                    <th>Published By</th>
+                    <th>Details</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-calendar-tbody">
+                  <tr>
+                    <td colspan="7" class="text-center" style="color: var(--text-light); padding: 2rem;">Loading published calendar events...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
